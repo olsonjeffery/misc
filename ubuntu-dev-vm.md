@@ -32,14 +32,16 @@ Setup step 1 above, but you never know).
 3. `git config --global core.autocrlf false && git config --global
    user.name "Your Name" && git config --global user.email
 your@name.com`
-4. `curl https://raw.github.com/carlhuda/janus/master/bootstrap.sh -o - | sh`
-5. Install [gccsense](http://cx4a.org/software/gccsense/manual.html#gccrec)
+5. Janus and other Vim stuff
+  4. `curl https://raw.github.com/carlhuda/janus/master/bootstrap.sh -o - | sh`
+  1. Maybe install [gccsense](http://cx4a.org/software/gccsense/manual.html#gccrec)
+  2. _Do_ install [MiniBufExpl](https://github.com/fholgado/minibufexpl.vim)
 
 You should now have:
 
 - node.js, npm & coffeescript
 - rvm-based ruby (ree 1.8.7 prolly + gems)
-- vim, janus and gccsense
+- vim, janus, etc
 
 ### .screenrc
 Here's one to get you started
