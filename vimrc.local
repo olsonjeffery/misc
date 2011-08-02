@@ -2,11 +2,19 @@ let g:miniBufExplMapWindowNavVim = 1
 let g:miniBufExplMapCTabSwitchBufs = 1
 set hidden
 let g:gccsenseUseOmniFunc = 1
-map <up> <esc>
-map <down> <esc>
-map <left> <esc>
-map <right> <esc>
 imap <up> <esc>
 imap <down> <esc>
 imap <left> <esc>
 imap <right> <esc>
+imap jj <esc>
+xmap <up> <esc>
+xmap <down> <esc>
+xmap <left> <esc>
+xmap <right> <esc>
+xmap jj <esc>
+nmap <up> <esc>
+nmap <down> <esc>
+nmap <left> <esc>
+nmap <right> <esc>
+
+nmap <Leader>b :FufBuffer<CR>
