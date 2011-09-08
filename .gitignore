@@ -1,0 +1,4 @@
+# .gitignore for my dotfiles
+/emacs.d/auto-save-list
+/emacs.d/elpa
+*~
