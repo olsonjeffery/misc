@@ -33,3 +33,6 @@
 ;; recentf, weeeee!
 (require 'recentf)
 (recentf-mode 1)
+
+;; get rid of that confounded toolbar
+(tool-bar-mode -1) 
