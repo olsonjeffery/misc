@@ -26,3 +26,10 @@
 
 ;;; Some additional bs to load the marmalade repo
 ;(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+
+;; save/restore desktop
+(desktop-save-mode 1)
+
+;; recentf, weeeee!
+(require 'recentf)
+(recentf-mode 1)
