@@ -2,9 +2,6 @@
 (add-to-list 'load-path "~/.emacs.d/vendor")
 (add-to-list 'load-path "~/.emacs.d/vendor/coffee-mode")
 (add-to-list 'load-path "~/.emacs.d/vendor/evil")
-(add-to-list 'load-path "~/.emacs.d/vendor/textmate.el")
-(require 'textmate)
-(textmate-mode)
 (require 'coffee-mode)
 (require 'color-theme)
 (require 'evil)
@@ -35,7 +32,9 @@
 (recentf-mode 1)
 
 ;; get rid of that confounded toolbar
-(tool-bar-mode -1) 
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 
 ;; org-mode
 (require 'org-install)
