@@ -54,3 +54,9 @@
 (setq org-mobile-inbox-for-pull "~/Dropbox/org/flagged.org") 
 ;; Set to <your Dropbox root directory>/MobileOrg.
 (setq org-mobile-directory "~/Dropbox/MobileOrg") 
+
+;; powershell on windows
+(defun load-powershell-if-on-windows ()
+	(if (string= "w32" window-system)
+			(require 'powershell)))
+(load-powershell-if-on-windows)
