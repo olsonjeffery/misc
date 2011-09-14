@@ -1,3 +1,6 @@
 # .gitignore for my dotfiles
 /emacs.d/auto-save-list
 *~
+/emacs.d/vendor/ac-dict
+/emacs.d/.org-id-locations
+/emacs.d/ac-comphist.dat
