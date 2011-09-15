@@ -42,7 +42,8 @@
 (setq org-agenda-files (list "~/Dropbox/org/sugs.org"
                              "~/Dropbox/org/mh.org" 
                              "~/Dropbox/org/work.org" 
-                             "~/Dropbox/org/personal.org")) 
+                             "~/Dropbox/org/adept.org" 
+                             "~/Dropbox/org/personal.org"))
 
 ;; ... dropbox stuff..
 ;; Set to the location of your Org files on your local system
