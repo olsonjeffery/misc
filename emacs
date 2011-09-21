@@ -13,8 +13,21 @@
 ;(color-theme-initialize)
 ;(load-file "~/.emacs.d/site-lisp/themes/color-theme-railscasts.el")
 ;(color-theme-railscasts)
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-(load-theme 'zenburn)
+(require 'color-theme)
+(defun load-color-theme ()
+	(when (string= "w32" window-system)
+	    	;; if we're on windows, use the old color theme stuff
+		(require 'color-theme)
+		(color-theme-initialize)
+		(load-file "~/.emacs.d/site-lisp/themes/color-theme-railscasts.el")
+		(color-theme-railscasts))
+	(when (not (string= "w32" window-system))
+		;; otherwise we're hopefully running emacs-snapshot, so let's use
+		;; the new system
+		(load-powershell-if-on-windows)
+		(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+		(load-theme 'zenburn)))
+(load-color-theme)
 
 (setq-default tab-width 2)
 
