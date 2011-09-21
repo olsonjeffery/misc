@@ -24,7 +24,6 @@
 	(when (not (string= "w32" window-system))
 		;; otherwise we're hopefully running emacs-snapshot, so let's use
 		;; the new system
-		(load-powershell-if-on-windows)
 		(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 		(load-theme 'zenburn)))
 (load-color-theme)
