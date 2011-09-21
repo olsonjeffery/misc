@@ -58,14 +58,54 @@
 	(if (string= "w32" window-system)
 			(require 'powershell)))
 (load-powershell-if-on-windows)
+
+;; cedet
+(load-file "~/.emacs.d/cedet/common/cedet.el")
+(semantic-load-enable-excessive-code-helpers)
+(require 'semantic-ia)
+(require 'semantic-gcc)
+
 ;; auto-complete-mode
 (require 'auto-complete-config)
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/vendor//ac-dict")
 (ac-config-default)
 (add-to-list 'ac-modes 'coffee-mode)
 (add-to-list 'ac-sources 'ac-source-semantic)
+(setq ac-show-menu-immediately-on-auto-complete t)
+(setq ac-auto-show-menu 1)
 
-;; stuff auto-added by tooling
+;; speedbar config
+(require 'sr-speedbar)
+(global-set-key (kbd "s-s") 'sr-speedbar-toggle)
+(setq sr-speedbar-auto-refresh t)
+(setq sr-speedbar-right-side nil)
+;; use semantic in speedbar	
+(add-hook 'speedbar-load-hook (lambda () (require 'semantic-sb)))
+
+;; some useful c++ dev stuff
+(defun my-c-mode-common-hook ()
+  (define-key c-mode-base-map (kbd "M-o") 'eassist-switch-h-cpp)
+  (define-key c-mode-base-map (kbd "M-m") 'eassist-list-methods)
+  (define-key c-mode-base-map (kbd "<C-tab>") 'ac-complete-semantic)
+  (define-key c-mode-base-map (kbd "C-.") 'semantic-ia-fast-jump))
+(add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
+
+;; load up my ede projects
+;(load-file "~/src/sugs/src/sugs-core/sugs-core-ede-proj.el")
+
+;; markdown support
+(autoload 'markdown-mode "markdown-mode.el"
+   "Major mode for editing Markdown files" t)
+(setq auto-mode-alist
+   (cons '("\\.md" . markdown-mode) auto-mode-alist))
+
+;###################################
+;###################################
+;##
+;## AUTO ADD BY TOOLING BELOW HERE
+;##
+;###################################
+;###################################
 
 ;;; This was installed by package-install.el.
 ;;; This provides support for the package system and
@@ -89,19 +129,3 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-(autoload 'markdown-mode "markdown-mode.el"
-   "Major mode for editing Markdown files" t)
-(setq auto-mode-alist
-   (cons '("\\.md" . markdown-mode) auto-mode-alist))
-
-;; cedet
-(load-file "~/.emacs.d/cedet/common/cedet.el")
-(semantic-load-enable-excessive-code-helpers)
-(require 'semantic-ia)
-(require 'semantic-gcc)
-
-(defun my-c-mode-common-hook ()
-  (define-key c-mode-base-map (kbd "M-o") 'eassist-switch-h-cpp)
-  (define-key c-mode-base-map (kbd "M-m") 'eassist-list-methods))
-(add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
