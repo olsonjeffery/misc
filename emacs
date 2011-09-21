@@ -59,6 +59,10 @@
 			(require 'powershell)))
 (load-powershell-if-on-windows)
 
+;; monky - magit-like hg support
+(add-to-list 'load-path "~/.emacs.d/vendor/monky")
+(require 'monky)
+
 ;; cedet
 (load-file "~/.emacs.d/cedet/common/cedet.el")
 (semantic-load-enable-excessive-code-helpers)
