@@ -8,15 +8,16 @@
 (require 'evil)
 (evil-mode 1)
 
-;; old color theme stuff
-;(require 'color-theme)
-;(color-theme-initialize)
-;(load-file "~/.emacs.d/site-lisp/themes/color-theme-railscasts.el")
-;(color-theme-railscasts)
+;; window switching w/ start key (loonix only)
+(defun jeff-back-window ()
+  (interactive)
+  (other-window -1))
+
 (require 'color-theme)
-(defun load-color-theme ()
+(defun per-platform-setup ()
 	(when (string= "w32" window-system)
-	    	;; if we're on windows, use the old color theme stuff
+		(require 'powershell)
+	  ;; if we're on windows, use the old color theme stuff
 		(require 'color-theme)
 		(color-theme-initialize)
 		(load-file "~/.emacs.d/site-lisp/themes/color-theme-railscasts.el")
@@ -26,7 +27,9 @@
 		;; the new system
 		(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 		(load-theme 'zenburn)))
-(load-color-theme)
+		(global-set-key (kbd "<s-down>") 'other-window)
+		(global-set-key (kbd "<s-up>") 'jeff-back-window)
+(per-platform-setup)
 
 (setq-default tab-width 2)
 
@@ -65,12 +68,6 @@
 ;; Set to <your Dropbox root directory>/MobileOrg.
 (setq org-mobile-directory "~/Dropbox/MobileOrg") 
 
-;; powershell on windows
-(defun load-powershell-if-on-windows ()
-	(if (string= "w32" window-system)
-			(require 'powershell)))
-(load-powershell-if-on-windows)
-
 ;; monky - magit-like hg support
 (add-to-list 'load-path "~/.emacs.d/vendor/monky")
 (require 'monky)
@@ -106,14 +103,24 @@
   (define-key c-mode-base-map (kbd "C-.") 'semantic-ia-fast-jump))
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 
-;; load up my ede projects
-;(load-file "~/src/sugs/src/sugs-core/sugs-core-ede-proj.el")
 
 ;; markdown support
 (autoload 'markdown-mode "markdown-mode.el"
    "Major mode for editing Markdown files" t)
 (setq auto-mode-alist
    (cons '("\\.md" . markdown-mode) auto-mode-alist))
+
+;; windows and revive -- cross-session window layout
+(require 'windows)
+(win:startup-with-window)
+(define-key ctl-x-map "C" 'see-you-again)
+(autoload 'save-current-configuration "revive" "Save status" t)
+(autoload 'resume "revive" "Resume Emacs" t)
+(autoload 'wipe "revive" "Wipe Emacs" t)
+
+(define-key ctl-x-map "S" 'save-current-configuration)
+(define-key ctl-x-map "F" 'resume)
+(define-key ctl-x-map "K" 'wipe)
 
 ;###################################
 ;###################################
@@ -145,3 +152,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+;; load up my ede projects.. this should probably be its own
+;; thing and only on linux
+(when (not (string= "w32" window-system))
+  (load-file "~/src/sugs/src/sugs-core/sugs-core-ede-proj.el"))
