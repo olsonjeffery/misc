@@ -1,0 +1,6 @@
+[Desktop Entry] 
+Encoding=UTF-8
+Name=jeff
+Comment=custom xsession
+TryExec=/home/jeff/.xesssion
+Exec=/home/jeff/.xsession
