@@ -32,7 +32,11 @@
 (per-platform-setup)
 
 (setq-default tab-width 2)
-
+(defun coffee-custom ()
+	"coffee-mode-hook"
+	(set (make-local-variable 'tab-width) 2))
+(add-hook 'coffee-mode-hook
+					'(lambda () (coffee-custom)))
 ;;; Some additional bs to load the marmalade repo
 ;(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 
@@ -58,6 +62,7 @@
                              "~/Dropbox/org/mh.org" 
                              "~/Dropbox/org/work.org" 
                              "~/Dropbox/org/adept.org" 
+                             "~/Dropbox/org/symmetric.org" 
                              "~/Dropbox/org/personal.org"))
 
 ;; ... dropbox stuff..
