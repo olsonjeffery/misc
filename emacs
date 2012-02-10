@@ -127,6 +127,10 @@
 (define-key ctl-x-map "F" 'resume)
 (define-key ctl-x-map "K" 'wipe)
 
+;; rust-mode
+(add-to-list 'load-path "~/.emacs.d/vendor/rust")
+(require 'rust-mode)
+
 ;###################################
 ;###################################
 ;##
@@ -150,7 +154,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes (quote ("86adc18aa6fb3ea0a801831f7b0bc88ed5999386" default))))
+ '(custom-safe-themes (quote ("86adc18aa6fb3ea0a801831f7b0bc88ed5999386" default)))
+ '(safe-local-variable-values (quote ((buffer-file-coding-system . utf-8-unix)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
