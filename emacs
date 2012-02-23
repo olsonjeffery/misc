@@ -31,7 +31,7 @@
 		(global-set-key (kbd "<s-up>") 'jeff-back-window)
 (per-platform-setup)
 
-(setq-default tab-width 2)
+(setq-default tab-width 4)
 (defun coffee-custom ()
 	"coffee-mode-hook"
 	(set (make-local-variable 'tab-width) 2))

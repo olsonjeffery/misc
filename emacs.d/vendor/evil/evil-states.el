@@ -1,890 +1,8 @@
-;;;; State system
+;;;; States
 
-;; What is "modes" in Vim is "states" in Evil. States are defined
-;; with the macro `evil-define-state'.
-;;
-;; A state consists of a universal keymap (like
-;; `evil-normal-state-map' for Normal state) and a buffer-local keymap for
-;; overriding the former (like `evil-normal-state-local-map').
-;; Sandwiched between these keymaps may be so-called auxiliary
-;; keymaps, which contain state bindings assigned to an Emacs mode
-;; (minor or major): more on that below.
-;;
-;; A state may "inherit" keymaps from another state. For example,
-;; Visual state will enable Normal state's keymaps in addition to its own.
-;; The keymap order then becomes:
-;;
-;;     <visual-local-map>
-;;     <visual auxiliary maps>
-;;     <visual-universal-map>
-;;     <normal-local-map>
-;;     <normal auxiliary maps>
-;;     <normal-universal-map>
-;;
-;; Since the activation of auxiliary maps depends on the current
-;; buffer and its modes, states are necessarily buffer-local.
-;; Different buffers can have different states, and different buffers
-;; enable states differently. (Thus, what keymaps to enable cannot be
-;; determined at compile time.) For example, the user may define some
-;; Visual state bindings for foo-mode, and if he enters foo-mode and
-;; Visual state in the current buffer, then the auxiliary keymap
-;; containing those bindings will be active. In a buffer where
-;; foo-mode is not enabled, it will not be.
-;;
-;; Why go to this trouble? Because it allows state bindings to be
-;; grouped into Emacs modes. This is useful for writing extensions.
-;;
-;; All state keymaps are listed in `evil-mode-map-alist', which is
-;; then listed in `emulation-mode-map-alist'. This gives state keymaps
-;; precedence over other keymaps. Note that `evil-mode-map-alist'
-;; has both a default (global) value and a buffer-local value. The
-;; default value is constructed when Evil is loaded and its states
-;; are defined. Afterwards, when entering a buffer, the default value
-;; is copied into the buffer-local value, and that value is reordered
-;; according to the current state (pushing Visual keymaps to the top
-;; when the user enters Visual state, etc.).
+(require 'evil-core)
 
-(require 'evil-common)
-
-(define-minor-mode evil-local-mode
-  "Minor mode for setting up Evil in a single buffer."
-  :init-value nil
-  (cond
-   (evil-local-mode
-    (setq emulation-mode-map-alists
-          (evil-concat-lists '(evil-mode-map-alist)
-                             emulation-mode-map-alists))
-    (evil-refresh-local-keymaps)
-    (ad-enable-advice 'show-paren-function 'around 'evil)
-    (ad-enable-advice 'undo-tree-visualize 'after 'evil)
-    (ad-activate 'show-paren-function)
-    ;; restore the proper value of `major-mode' in Fundamental buffers
-    (when (eq major-mode 'evil-local-mode)
-      (setq major-mode 'fundamental-mode))
-    ;; determine and enable the initial state
-    (evil-initialize-state)
-    ;; re-determine the initial state in `post-command-hook' since the
-    ;; major mode may not be initialized yet, and some modes neglect
-    ;; to run `after-change-major-mode-hook'
-    (add-hook 'input-method-activate-hook 'evil-activate-input-method t t)
-    (add-hook 'input-method-inactivate-hook 'evil-inactivate-input-method t t)
-    (add-hook 'post-command-hook 'evil-initialize-state t t)
-    (add-hook 'pre-command-hook 'evil-repeat-pre-hook)
-    (add-hook 'post-command-hook 'evil-repeat-post-hook)
-    (add-hook 'post-command-hook 'evil-refresh-cursor))
-   (t
-    (evil-refresh-mode-line)
-    (ad-disable-advice 'show-paren-function 'around 'evil)
-    (ad-disable-advice 'undo-tree-visualize 'after 'evil)
-    (ad-activate 'show-paren-function)
-    (remove-hook 'input-method-activate-hook 'evil-activate-input-method t)
-    (remove-hook 'input-method-inactivate-hook 'evil-inactivate-input-method t)
-    (evil-change-state nil))))
-
-(defun evil-initialize ()
-  "Enable Evil in the current buffer, if appropriate.
-To enable Evil globally, do (evil-mode 1)."
-  ;; TODO: option for enabling vi keys in the minibuffer
-  (unless (minibufferp)
-    (evil-local-mode 1)
-    (remove-hook 'post-command-hook 'evil-initialize-state t)))
-
-;;;###autoload (autoload 'evil-mode "evil")
-(define-globalized-minor-mode evil-mode
-  evil-local-mode evil-initialize)
-
-;; to ensure that Fundamental buffers come up in Normal state,
-;; initialize `fundamental-mode' via `evil-local-mode'
-(defadvice evil-mode (after evil activate)
-  "Enable Evil in Fundamental mode."
-  (if evil-mode
-      ;; this is changed back when initializing `evil-local-mode'
-      (setq-default major-mode 'evil-local-mode)
-    (setq-default major-mode 'fundamental-mode)))
-
-(put 'evil-mode 'function-documentation
-     "Toggle Evil in all buffers.
-Enable with positive ARG and disable with negative ARG.
-See `evil-local-mode' to toggle Evil in the
-current buffer only.")
-
-(defun evil-state-p (sym)
-  "Whether SYM is the name of a state."
-  (assq sym evil-state-properties))
-
-(defun evil-initialize-state (&optional buffer)
-  "Initialize Evil state in BUFFER."
-  (with-current-buffer (or buffer (current-buffer))
-    (evil-change-to-initial-state buffer)
-    (remove-hook 'post-command-hook 'evil-initialize-state t)))
-
-(evil-define-command evil-change-to-initial-state
-  (&optional buffer message)
-  "Change state to the initial state for BUFFER.
-This is the state the buffer comes up in."
-  :keep-visual t
-  (interactive)
-  (with-current-buffer (or buffer (current-buffer))
-    (evil-change-state (evil-initial-state-for-buffer
-                        buffer (or evil-default-state 'normal))
-                       message)))
-
-(evil-define-command evil-change-to-previous-state
-  (&optional buffer message)
-  "Change the state of BUFFER to its previous state."
-  :keep-visual t
-  (interactive)
-  (with-current-buffer (or buffer (current-buffer))
-    (evil-change-state (or evil-previous-state evil-default-state 'normal)
-                       message)))
-
-(evil-define-command evil-exit-emacs-state (&optional buffer message)
-  "Change from Emacs state to the previous state."
-  :keep-visual t
-  (interactive '(nil t))
-  (with-current-buffer (or buffer (current-buffer))
-    (evil-change-to-previous-state buffer message)
-    (when (evil-emacs-state-p)
-      (evil-normal-state (and message 1)))))
-
-(defun evil-change-state (state &optional message)
-  "Change state to STATE.
-Disable all states if nil."
-  (let ((func (evil-state-property (or state evil-state) :toggle)))
-    (when (and (functionp func)
-               (or message (not (eq state evil-state))))
-      (funcall func (if state (and message 1) -1)))))
-
-(defun evil-initial-state-for-buffer (&optional buffer default)
-  "Return initial Evil state to use for BUFFER, or DEFAULT if none.
-BUFFER defaults to the current buffer."
-  (let (state)
-    (with-current-buffer (or buffer (current-buffer))
-      (or (catch 'loop
-            (dolist (mode (append (mapcar 'car minor-mode-map-alist)
-                                  (list major-mode)))
-              (when (and (or (not (boundp mode)) (symbol-value mode))
-                         (setq state (evil-initial-state mode)))
-                (throw 'loop state))))
-          default))))
-
-(defun evil-initial-state (mode &optional default)
-  "Return Evil state to use for MODE, or DEFAULT if none.
-The initial state for a mode can be set with
-`evil-set-initial-state'."
-  (let (state modes)
-    (or (catch 'loop
-          (dolist (entry (evil-state-property nil :modes))
-            (setq state (car entry)
-                  modes (symbol-value (cdr entry)))
-            (when (memq mode modes)
-              (throw 'loop state))))
-        default)))
-
-(defun evil-set-initial-state (mode state)
-  "Set the initial state for MODE to STATE.
-This is the state the buffer comes up in."
-  (dolist (modes (evil-state-property nil :modes))
-    (setq modes (cdr-safe modes))
-    (set modes (delq mode (symbol-value modes))))
-  (when state
-    (add-to-list (evil-state-property state :modes) mode)))
-
-(defun evil-refresh-mode-line (&optional state)
-  "Refresh mode line tag."
-  (let (name next string temp)
-    (setq string (and state (symbol-value
-                             (evil-state-property state :tag)))
-          name (evil-state-property state :name))
-    ;; add tooltip
-    (when (stringp string)
-      (setq string
-            (propertize string
-                        'help-echo name
-                        'mouse-face 'mode-line-highlight)))
-    (setq evil-mode-line-tag string)
-    ;; refresh mode line data structure
-    (when (or (null evil-local-mode)
-              (null state)
-              (not (eq evil-mode-line-format 'before)))
-      (setq mode-line-position
-            (delq 'evil-mode-line-tag mode-line-position)))
-    (when (or (null evil-local-mode)
-              (null state)
-              (not (eq evil-mode-line-format 'after)))
-      (while global-mode-string
-        (setq next (pop global-mode-string))
-        (if (eq next 'evil-mode-line-tag)
-            (pop temp) ; remove the ""
-          (push next temp)))
-      (setq global-mode-string (nreverse temp)))
-    (when evil-local-mode
-      (when (eq evil-mode-line-format 'before)
-        (add-to-list 'mode-line-position 'evil-mode-line-tag t 'eq))
-      (when (eq evil-mode-line-format 'after)
-        (unless (memq 'evil-mode-line-tag global-mode-string)
-          (setq global-mode-string
-                (nconc global-mode-string '("" evil-mode-line-tag))))))
-    (force-mode-line-update)))
-
-(defun evil-activate-input-method ()
-  "Disable input method in states with :input-method nil."
-  (let (input-method-activate-hook
-        input-method-inactivate-hook)
-    (when (and evil-local-mode evil-state)
-      (setq evil-input-method current-input-method)
-      (unless (evil-state-property evil-state :input-method)
-        (inactivate-input-method)))))
-
-(defun evil-inactivate-input-method ()
-  "Disable input method in states with :input-method nil."
-  (let (input-method-activate-hook
-        input-method-inactivate-hook)
-    (when (and evil-local-mode evil-state)
-      (setq evil-input-method nil))))
-
-(defadvice toggle-input-method (around evil activate)
-  "Refresh `evil-input-method'."
-  (if (evil-state-property evil-state :input-method)
-      ad-do-it
-    (let ((current-input-method evil-input-method))
-      ad-do-it)))
-
-(defun evil-refresh-global-keymaps ()
-  "Refresh the global value of `evil-mode-map-alist'.
-Update its entries if keymaps change."
-  (let ((temp (default-value 'evil-mode-map-alist))
-        mode map)
-    (dolist (entry evil-global-keymaps-alist)
-      (setq mode (car entry)
-            map  (cdr entry))
-      (evil-add-to-alist 'temp mode (symbol-value map)))
-    (setq-default evil-mode-map-alist temp)))
-
-;; Local keymaps are implemented using buffer-local variables.
-;; However, unless a buffer-local value already exists,
-;; `define-key' acts on the variable's default (global) value.
-;; So we need to initialize the variable whenever we enter a
-;; new buffer or when the buffer-local values are reset.
-(defun evil-refresh-local-keymaps ()
-  "Refresh the buffer-local value of `evil-mode-map-alist'.
-Initialize a buffer-local value for all local keymaps
-and update their list entries."
-  (setq evil-mode-map-alist
-        (copy-sequence (default-value 'evil-mode-map-alist)))
-  (dolist (entry evil-local-keymaps-alist)
-    (let ((mode (car entry))
-          (map  (cdr entry)))
-      (unless (and (keymapp (symbol-value map))
-                   (assq map (buffer-local-variables)))
-        (set map (make-sparse-keymap)))
-      (evil-add-to-alist 'evil-mode-map-alist
-                         mode (symbol-value map)))))
-
-(defun evil-make-overriding-map (keymap &optional state copy)
-  "Give KEYMAP precedence over the global keymap of STATE.
-The keymap will have lower precedence than custom STATE bindings.
-If STATE is nil, give it precedence over all states.
-If COPY is t, create a copy of KEYMAP and give that
-higher precedence. See also `evil-make-intercept-map'."
-  (let ((key (if (null state)
-                 [overriding-states]
-               (vconcat
-                (list (intern (format "overriding-%s-state" state)))))))
-    (when (and copy (not (keymapp copy)))
-      (setq copy (assq-delete-all 'menu-bar (copy-keymap keymap))))
-    (cond
-     ((keymapp copy)
-      (define-key copy key (or state 'state))
-      (define-key keymap key copy))
-     (t
-      (define-key keymap key (or state 'state))))))
-
-(defun evil-make-intercept-map (keymap &optional state)
-  "Give KEYMAP precedence over all Evil keymaps in STATE.
-If STATE is nil, give it precedence over all states.
-See also `evil-make-overriding-map'."
-  (let ((key (if (null state)
-                 [intercept-states]
-               (vconcat
-                (list (intern (format "intercept-%s-state" state)))))))
-    (define-key keymap key (or state 'state))))
-
-(defmacro evil-define-keymap (keymap doc &rest body)
-  "Define a keymap KEYMAP listed in `evil-mode-map-alist'.
-That means it will have precedence over regular keymaps.
-
-DOC is the documentation for the variable. BODY, if specified,
-is executed after toggling the mode. Optional keyword arguments
-may be specified before the body code:
-
-:mode VAR       Mode variable. If unspecified, the variable
-                is based on the keymap name.
-:local BOOLEAN  Whether the keymap should be buffer-local, that is,
-                reinitialized for each buffer.
-:func BOOLEAN   Create a toggle function even if BODY is empty.
-
-\(fn KEYMAP DOC [[KEY VAL]...] BODY...)"
-  (declare (indent defun)
-           (debug (&define name
-                           [&optional stringp]
-                           [&rest [keywordp sexp]]
-                           def-body)))
-  (let ((func t)
-        arg intercept key local mode overriding)
-    (while (keywordp (car-safe body))
-      (setq key (pop body)
-            arg (pop body))
-      (cond
-       ((eq key :mode)
-        (setq mode arg))
-       ((eq key :local)
-        (setq local arg))
-       ((eq key :func)
-        (setq func arg))
-       ((eq key :intercept)
-        (setq intercept arg))
-       ((eq key :overriding)
-        (setq overriding arg))))
-    (setq mode (or mode
-                   (intern (replace-regexp-in-string
-                            "\\(?:-\\(?:mode-\\)?\\(?:key\\)?map\\)?$"
-                            "-mode"
-                            (symbol-name keymap)))))
-    `(progn
-       (defvar ,keymap ,(unless local '(make-sparse-keymap)))
-       (unless (get ',keymap 'variable-documentation)
-         (put ',keymap 'variable-documentation ,doc))
-       (defvar ,mode nil)
-       (unless (get ',mode 'variable-documentation)
-         (put ',mode 'variable-documentation ,doc))
-       (make-variable-buffer-local ',mode)
-       (when ,intercept
-         (evil-make-intercept-map ,keymap))
-       (when ,overriding
-         (evil-make-overriding-map ,keymap))
-       ,@(if local
-             `((make-variable-buffer-local ',keymap)
-               (evil-add-to-alist 'evil-local-keymaps-alist
-                                  ',mode ',keymap))
-           `((evil-add-to-alist 'evil-global-keymaps-alist
-                                ',mode ',keymap)
-             (evil-add-to-alist 'evil-mode-map-alist
-                                ',mode ,keymap)))
-       (evil-refresh-global-keymaps)
-       ,(when (or body func)
-          `(defun ,mode (&optional arg)
-             ,@(when doc `(,doc))
-             (interactive)
-             (cond
-              ((numberp arg)
-               (setq ,mode (> arg 0)))
-              (t
-               (setq ,mode (not ,mode))))
-             ,@body))
-       ',keymap)))
-
-;; Intercept the ESC event when running in the terminal. This allows
-;; keys that use "ESC" as a prefix key, such as "M-x". If "ESC" is
-;; immediately followed by another key, or another key is pressed
-;; within `evil-esc-delay', the prefixed key sequence is sent.
-;; Otherwise only [escape] is sent.
-(evil-define-keymap evil-esc-map
-  "Keymap for intercepting ESC."
-  :intercept t)
-
-(defun evil-turn-on-esc-mode ()
-  "Enable interception of ESC."
-  (unless (eq this-command 'evil-esc)
-    (evil-esc-mode 1)
-    (remove-hook 'pre-command-hook 'evil-turn-on-esc-mode t)))
-
-(evil-define-command evil-esc ()
-  "Wait for further keys within `evil-esc-delay'.
-Otherwise send [escape]."
-  :repeat ignore
-  (interactive)
-  (if (sit-for evil-esc-delay t)
-      (push 'escape unread-command-events)
-    (push last-command-event unread-command-events))
-  ;; disable interception for the next key sequence
-  (evil-esc-mode -1)
-  (add-hook 'pre-command-hook 'evil-turn-on-esc-mode nil t))
-
-;; `evil-esc' is bound to (kbd "ESC"), while other commands
-;; are bound to [escape]. That way `evil-esc' is used only when
-;; (kbd "ESC") and [escape] are the same event -- i.e., when
-;; running Emacs in the terminal.
-(define-key evil-esc-map (kbd "ESC") 'evil-esc)
-
-(defun evil-state-keymaps (state &rest excluded)
-  "Return an ordered list of keymaps activated by STATE.
-Skip states listed in EXCLUDED."
-  (let* ((state (or state evil-state))
-         (map (symbol-value (evil-state-property state :keymap)))
-         (local-map (symbol-value (evil-state-property
-                                   state :local-keymap)))
-         (aux-maps (evil-state-auxiliary-keymaps state))
-         (overriding-maps (evil-state-overriding-keymaps state))
-         (enable (evil-state-property state :enable))
-         (result (evil-state-intercept-keymaps state)))
-    (add-to-list 'enable state)
-    ;; the keymaps for other states and modes enabled by STATE
-    (dolist (entry enable result)
-      (cond
-       ((memq entry excluded))
-       ((eq entry state)
-        (setq result
-              (evil-concat-lists
-               result
-               (list local-map)
-               aux-maps
-               overriding-maps
-               (list map)))
-        (add-to-list 'excluded state))
-       ((evil-state-p entry)
-        (setq result (evil-concat-lists
-                      result
-                      (apply 'evil-state-keymaps entry excluded))))
-       ((keymapp entry)
-        (add-to-list 'result entry t 'eq))
-       ((keymapp (symbol-value entry))
-        (add-to-list 'result (symbol-value entry) t 'eq))
-       (t
-        (setq map (evil-mode-keymap entry))
-        (when map
-          (add-to-list 'result map t 'eq)))))))
-
-(defun evil-normalize-keymaps (&optional state)
-  "Create a buffer-local value for `evil-mode-map-alist'.
-Its order reflects the state in the current buffer."
-  (let ((state (or state evil-state))
-        alist mode)
-    (evil-refresh-global-keymaps)
-    (evil-refresh-local-keymaps)
-    ;; disable all modes
-    (dolist (mode (mapcar 'car (evil-concat-alists
-                                evil-mode-map-alist
-                                evil-local-keymaps-alist)))
-      (when (and (fboundp mode) (symbol-value mode))
-        (funcall mode -1))
-      (set mode nil))
-    ;; enable modes for current state
-    (when state
-      (dolist (map (evil-state-keymaps state))
-        (if (or (evil-auxiliary-keymap-p map)
-                (evil-overriding-keymap-p map))
-            (add-to-list 'alist (cons t map) t 'eq)
-          (when (setq mode (or (evil-keymap-mode map) t))
-            (when (and (fboundp mode) (null (symbol-value mode)))
-              (funcall mode 1))
-            (unless (eq mode t)
-              (set mode t))
-            ;; refresh the keymap in case it has changed
-            ;; (e.g., `evil-operator-shortcut-map' is
-            ;; reset on toggling)
-            (setq map (or (evil-mode-keymap mode) map))
-            (evil-add-to-alist 'alist mode map)))))
-    ;; move the enabled modes to the front of the list
-    (setq evil-mode-map-alist
-          (evil-filter-list (lambda (elt)
-                              (assq (car-safe elt) alist))
-                            evil-mode-map-alist))
-    (setq evil-mode-map-alist (append alist evil-mode-map-alist))))
-
-(defun evil-keymap-mode (keymap)
-  "Return minor mode for KEYMAP.
-See also `evil-mode-keymap'."
-  (let ((map (if (keymapp keymap) keymap (symbol-value keymap)))
-        (var (when (symbolp keymap) keymap)))
-    ;; Check Evil variables first for speed purposes.
-    ;; If all else fails, check `minor-mode-map-alist'.
-    (or (when var
-          (or (car (rassq var evil-global-keymaps-alist))
-              (car (rassq var evil-local-keymaps-alist))))
-        (car (rassq map (mapcar (lambda (e)
-                                  ;; from (MODE-VAR . MAP-VAR)
-                                  ;; to (MODE-VAR . MAP)
-                                  (cons (car-safe e)
-                                        (symbol-value (cdr-safe e))))
-                                (append evil-global-keymaps-alist
-                                        evil-local-keymaps-alist))))
-        (car (rassq map minor-mode-map-alist)))))
-
-(defun evil-mode-keymap (mode &optional variable)
-  "Return keymap for minor MODE.
-Return the keymap variable if VARIABLE is non-nil.
-See also `evil-keymap-mode'."
-  (let* ((var (or (cdr (assq mode evil-global-keymaps-alist))
-                  (cdr (assq mode evil-local-keymaps-alist))))
-         (map (or (symbol-value var)
-                  (cdr (assq mode minor-mode-map-alist)))))
-    (if variable var map)))
-
-(defun evil-state-auxiliary-keymaps (state)
-  "Return an ordered list of auxiliary keymaps for STATE."
-  (let ((state (or state evil-state))
-        aux result)
-    (dolist (map (current-active-maps) result)
-      (when (setq aux (evil-get-auxiliary-keymap map state))
-        (add-to-list 'result aux t 'eq)))))
-
-(defun evil-state-overriding-keymaps (state)
-  "Return an ordered list of overriding keymaps for STATE."
-  (let* ((state (or state evil-state))
-         (key (vconcat (list (intern (format "overriding-%s-state"
-                                             state)))))
-         override result)
-    (dolist (map (current-active-maps))
-      (setq override (or (lookup-key map [overriding-states])
-                         (lookup-key map key)))
-      (when (keymapp override)
-        (setq map override))
-      (when override
-        (push map result)))
-    (nreverse result)))
-
-(defun evil-state-intercept-keymaps (state)
-  "Return an ordered list of intercept keymaps for STATE."
-  (let* ((state (or state evil-state))
-         (key (vconcat (list (intern (format "intercept-%s-state"
-                                             state)))))
-         (result (list evil-esc-map)))
-    (dolist (map (current-active-maps) result)
-      (when (evil-intercept-keymap-p map state)
-        (add-to-list 'result map t 'eq)))))
-
-(defun evil-set-auxiliary-keymap (map state &optional aux)
-  "Set the auxiliary keymap for MAP in STATE to AUX.
-If AUX is nil, create a new auxiliary keymap."
-  (unless (keymapp aux)
-    (setq aux (make-sparse-keymap)))
-  (unless (evil-auxiliary-keymap-p aux)
-    (evil-set-keymap-prompt
-     aux (format "Auxiliary keymap for %s state" state)))
-  (define-key map
-    (vconcat (list (intern (format "%s-state" state)))) aux)
-  aux)
-
-(defun evil-get-auxiliary-keymap (map state &optional create)
-  "Get the auxiliary keymap for MAP in STATE.
-If CREATE is non-nil, create an auxiliary keymap
-if MAP does not have one."
-  (when state
-    (let* ((key (vconcat (list (intern (format "%s-state" state)))))
-           (aux (if state (lookup-key map key) map)))
-      (cond
-       ((evil-auxiliary-keymap-p aux)
-        aux)
-       (create
-        (evil-set-auxiliary-keymap map state))))))
-
-(defun evil-auxiliary-keymap-p (map)
-  "Whether MAP is an auxiliary keymap."
-  (and (keymapp map)
-       (string-match "Auxiliary keymap"
-                     (or (keymap-prompt map) "")) t))
-
-(defun evil-overriding-keymap-p (map &optional state)
-  "Whether MAP is an overriding keymap for STATE.
-If STATE is nil, it means any state."
-  (or (lookup-key map [overriding-states])
-      (if state
-          (lookup-key
-           map
-           (vconcat
-            (list (intern (format "overriding-%s-state" state)))))
-        (catch 'done
-          (dolist (state evil-state-properties)
-            (when (evil-overriding-keymap-p map (car state))
-              (throw 'done t)))))))
-
-(defun evil-intercept-keymap-p (map &optional state)
-  "Whether MAP is an intercept keymap for STATE.
-If STATE is nil, it means any state."
-  (or (lookup-key map [intercept-states])
-      (if state
-          (lookup-key
-           map
-           (vconcat
-            (list (intern (format "intercept-%s-state" state)))))
-        (catch 'done
-          (dolist (state evil-state-properties)
-            (when (evil-overriding-keymap-p map (car state))
-              (throw 'done t)))))))
-
-(defun evil-define-key (state keymap key def &rest bindings)
-  "Create a STATE binding from KEY to DEF for KEYMAP.
-STATE is one of `normal', `insert', `visual', `replace',
-`operator', `motion' and `emacs'. The remaining arguments
-are like those of `define-key'. For example:
-
-    (evil-define-key 'normal foo-map \"a\" 'bar)
-
-This creates a binding from \"a\" to `bar' in Normal state,
-which is active whenever `foo-map' is active. It is possible
-to specify multiple bindings at once:
-
-    (evil-define-key 'normal foo-map
-      \"a\" 'bar
-      \"b\" 'foo)
-
-See also `evil-declare-key'."
-  (let ((aux (if state
-                 (evil-get-auxiliary-keymap keymap state t)
-               keymap)))
-    (while key
-      (define-key aux key def)
-      (setq key (pop bindings)
-            def (pop bindings)))
-    ;; ensure the prompt string comes first
-    (evil-set-keymap-prompt aux (keymap-prompt aux))))
-
-(defmacro evil-declare-key (state keymap key def &rest bindings)
-  "Declare a STATE binding from KEY to DEF in KEYMAP.
-Similar to `evil-define-key', but also works if KEYMAP is unbound;
-the execution is postponed until KEYMAP is bound. For example:
-
-    (evil-declare-key 'normal foo-map \"a\" 'bar)
-
-The arguments are exactly like those of `evil-define-key',
-and should be quoted as such."
-  (declare (indent defun))
-  (let ((func (evil-generate-symbol)))
-    `(let (package)
-       (cond
-        ((boundp ',keymap)
-         (evil-define-key ,state ,keymap ,key ,def ,@bindings))
-        ((setq package
-               (or (cdr-safe (assq ',keymap evil-overriding-maps))
-                   (cdr-safe (assq ',keymap evil-intercept-maps))))
-         (eval-after-load package
-           '(evil-define-key ,state ,keymap ,key ,def ,@bindings)))
-        (t
-         (defun ,func (&rest args)
-           (when (boundp ',keymap)
-             (unless (keymapp ,keymap)
-               (setq ,keymap (make-sparse-keymap)))
-             (evil-define-key ,state ,keymap ,key ,def ,@bindings)
-             (remove-hook 'after-load-functions ',func)))
-         (add-hook 'after-load-functions ',func))))))
-
-(put 'evil-define-key 'lisp-indent-function 'defun)
-(put 'evil-set-auxiliary-keymap 'lisp-indent-function 'defun)
-
-;; these may be useful for programmatic purposes
-(defun evil-global-set-key (state key def)
-  "Bind KEY to DEF in STATE."
-  (define-key (symbol-value (evil-state-property state :keymap))
-    key def))
-
-(defun evil-local-set-key (state key def)
-  "Bind KEY to DEF in STATE in the current buffer."
-  (define-key (symbol-value (evil-state-property state :local-keymap))
-    key def))
-
-;; The following functions may enable an overriding keymap
-;; or a keymap with state bindings. Therefore we need to
-;; refresh `evil-mode-map-alist'.
-(defadvice use-global-map (after evil activate)
-  "Refresh Evil keymaps."
-  (evil-normalize-keymaps))
-
-(defadvice use-local-map (after evil activate)
-  "Refresh Evil keymaps."
-  (evil-normalize-keymaps))
-
-(defmacro evil-define-state (state doc &rest body)
-  "Define an Evil state STATE.
-DOC is a general description and shows up in all docstrings.
-Then follows one or more optional keywords:
-
-:tag STRING             Mode line indicator.
-:message STRING         Echo area message when changing to STATE.
-:cursor SPEC            Cursor to use in STATE.
-:entry-hook LIST        Hooks run when changing to STATE.
-:exit-hook LIST         Hooks run when changing from STATE.
-:enable LIST            List of other states and modes enabled by STATE.
-:suppress-keymap FLAG   If FLAG is non-nil, makes
-                        `evil-suppress-map' the parent of the
-                        global map of STATE, effectively disabling
-                        bindings to `self-insert-command'.
-
-Following the keywords is optional code to be executed each time
-the state is enabled or disabled.
-
-For example:
-
-    (evil-define-state test
-      \"A simple test state.\"
-      :tag \"<T> \")
-
-The basic keymap of this state will then be
-`evil-test-state-map', and so on.
-
-\(fn STATE DOC [[KEY VAL]...] BODY...)"
-  (declare (indent defun)
-           (debug (&define name
-                           [&optional stringp]
-                           [&rest [keywordp sexp]]
-                           def-body)))
-  (let* ((name (and (string-match "^\\(.+\\)\\(\\(?:.\\|\n\\)*\\)" doc)
-                    (match-string 1 doc)))
-         (doc (match-string 2 doc))
-         (name (and (string-match "^\\(.+?\\)\\.?$" name)
-                    (match-string 1 name)))
-         (doc (if (or (null doc) (string= doc "")) ""
-                (format "\n%s" doc)))
-         (toggle (intern (format "evil-%s-state" state)))
-         (mode (intern (format "%s-minor-mode" toggle)))
-         (keymap (intern (format "%s-map" toggle)))
-         (local (intern (format "%s-local-minor-mode" toggle)))
-         (local-keymap (intern (format "%s-local-map" toggle)))
-         (tag (intern (format "%s-tag" toggle)))
-         (message (intern (format "%s-message" toggle)))
-         (cursor (intern (format "%s-cursor" toggle)))
-         (entry-hook (intern (format "%s-entry-hook" toggle)))
-         (exit-hook (intern (format "%s-exit-hook" toggle)))
-         (modes (intern (format "%s-modes" toggle)))
-         (predicate (intern (format "%s-p" toggle)))
-         arg cursor-value enable entry-hook-value exit-hook-value
-         input-method key message-value suppress-keymap tag-value)
-    ;; collect keywords
-    (while (keywordp (car-safe body))
-      (setq key (pop body)
-            arg (pop body))
-      (cond
-       ((eq key :tag)
-        (setq tag-value arg))
-       ((eq key :message)
-        (setq message-value arg))
-       ((eq key :cursor)
-        (setq cursor-value arg))
-       ((eq key :entry-hook)
-        (setq entry-hook-value arg)
-        (unless (listp entry-hook-value)
-          (setq entry-hook-value (list entry-hook-value))))
-       ((eq key :exit-hook)
-        (setq exit-hook-value arg)
-        (unless (listp exit-hook-value)
-          (setq exit-hook-value (list entry-hook-value))))
-       ((eq key :enable)
-        (setq enable arg))
-       ((eq key :input-method)
-        (setq input-method arg))
-       ((eq key :suppress-keymap)
-        (setq suppress-keymap arg))))
-
-    ;; macro expansion
-    `(progn
-       ;; Save the state's properties in `evil-state-properties' for
-       ;; runtime lookup. Among other things, this information is used
-       ;; to determine what keymaps should be activated by the state
-       ;; (and, when processing :enable, what keymaps are activated by
-       ;; other states). We cannot know this at compile time because
-       ;; it depends on the current buffer and its active keymaps
-       ;; (to which we may have assigned state bindings), as well as
-       ;; states whose definitions may not have been processed yet.
-       (evil-put-property
-        'evil-state-properties ',state
-        :name ',name
-        :toggle ',toggle
-        :mode (defvar ,mode nil
-                ,(format "Non-nil if %s is enabled.
-Use the command `%s' to change this variable." name toggle))
-        :keymap (defvar ,keymap (make-sparse-keymap)
-                  ,(format "Keymap for %s." name))
-        :local (defvar ,local nil
-                 ,(format "Non-nil if %s is enabled.
-Use the command `%s' to change this variable." name toggle))
-        :local-keymap (defvar ,local-keymap nil
-                        ,(format "Buffer-local keymap for %s." name))
-        :tag (defvar ,tag ,tag-value
-               ,(format "Mode line tag for %s." name))
-        :message (defvar ,message ,message-value
-                   ,(format "Echo area indicator for %s." name))
-        :cursor (defvar ,cursor ',cursor-value
-                  ,(format "Cursor for %s.
-May be a cursor type as per `cursor-type', a color string as passed
-to `set-cursor-color', a zero-argument function for changing the
-cursor, or a list of the above." name))
-        :entry-hook (defvar ,entry-hook nil
-                      ,(format "Hooks to run when entering %s." name))
-        :exit-hook (defvar ,exit-hook nil
-                     ,(format "Hooks to run when exiting %s." name))
-        :modes (defvar ,modes nil
-                 ,(format "Modes that should come up in %s." name))
-        :input-method ',input-method
-        :predicate ',predicate
-        :enable ',enable)
-
-       ,@(when suppress-keymap
-           `((set-keymap-parent ,keymap evil-suppress-map)))
-
-       (dolist (func ',entry-hook-value)
-         (add-hook ',entry-hook func))
-
-       (dolist (func ',exit-hook-value)
-         (add-hook ',exit-hook func))
-
-       (defun ,predicate (&optional state)
-         ,(format "Whether the current state is %s.
-\(That is, whether `evil-state' is `%s'.)" name state)
-         (and evil-local-mode
-              (eq (or state evil-state) ',state)))
-
-       ;; define state function
-       (evil-define-command ,toggle (&optional arg)
-         :keep-visual t
-         ,(format "Enable %s. Disable with negative ARG.
-If ARG is nil, don't display a message in the echo area.%s" name doc)
-         (interactive "p")
-         (cond
-          ((and (numberp arg) (< arg 1))
-           (setq evil-previous-state evil-state
-                 evil-state nil)
-           (let ((evil-state ',state))
-             (run-hooks ',exit-hook)
-             (setq evil-state nil)
-             (evil-normalize-keymaps)
-             ,@body))
-          (t
-           (unless evil-local-mode
-             (evil-initialize))
-           (let ((evil-next-state ',state)
-                 input-method-activate-hook
-                 input-method-inactivate-hook)
-             (evil-change-state nil)
-             (setq evil-state ',state)
-             (let ((evil-state ',state))
-               (evil-normalize-keymaps)
-               (if ',input-method
-                   (activate-input-method evil-input-method)
-                 (inactivate-input-method))
-               (unless evil-locked-display
-                 (evil-refresh-cursor ',state)
-                 (evil-refresh-mode-line ',state)
-                 (when (evil-called-interactively-p)
-                   (redisplay)))
-               ,@body
-               (run-hooks ',entry-hook)
-               (when (and arg (not evil-locked-display) ,message)
-                 (if (functionp ,message)
-                     (funcall ,message)
-                   (evil-echo ,message))))))))
-
-       (evil-define-keymap ,keymap nil
-         :mode ,mode
-         :func nil)
-
-       (evil-define-keymap ,local-keymap nil
-         :mode ,local
-         :local t
-         :func nil)
-
-       ',state)))
-
-;;; Define Normal state and Emacs state
+;;; Normal state
 
 (evil-define-state normal
   "Normal state.
@@ -894,34 +12,773 @@ AKA \"Command\" state."
   :exit-hook (evil-repeat-start-hook)
   (cond
    ((evil-normal-state-p)
-    (add-hook 'post-command-hook 'evil-normal-post-command nil t))
+    (add-hook 'post-command-hook #'evil-normal-post-command nil t))
    (t
-    (remove-hook 'post-command-hook 'evil-normal-post-command t))))
+    (remove-hook 'post-command-hook #'evil-normal-post-command t))))
 
-(defun evil-normal-post-command ()
+(defun evil-normal-post-command (&optional command)
   "Reset command loop variables in Normal state.
 Also prevent point from reaching the end of the line.
 If the region is activated, enter Visual state."
-  (when (evil-normal-state-p)
-    (setq evil-this-type nil
-          evil-this-operator nil
-          evil-this-motion nil
-          evil-this-motion-count nil
-          evil-inhibit-operator nil
-          evil-inhibit-operator-value nil)
-    (unless (eq this-command 'evil-use-register)
-      (setq evil-this-register nil))
-    (evil-adjust-eol)
-    (when (region-active-p)
-      (and (fboundp 'evil-visual-state)
-           (evil-visual-state)))))
+  (unless (evil-initializing-p)
+    (setq command (or command this-command))
+    (when (evil-normal-state-p)
+      (setq evil-this-type nil
+            evil-this-operator nil
+            evil-this-motion nil
+            evil-this-motion-count nil
+            evil-inhibit-operator nil
+            evil-inhibit-operator-value nil)
+      (unless (eq command #'evil-use-register)
+        (setq evil-this-register nil))
+      (evil-adjust-cursor))))
+(put 'evil-normal-post-command 'permanent-local-hook t)
+
+;;; Insert state
+
+(evil-define-state insert
+  "Insert state."
+  :tag " <I> "
+  :cursor (bar . 2)
+  :message "-- INSERT --"
+  :exit-hook (evil-cleanup-insert-state)
+  :input-method t
+  (cond
+   ((evil-insert-state-p)
+    (add-hook 'pre-command-hook #'evil-insert-repeat-hook)
+    (unless evil-want-fine-undo
+      (evil-start-undo-step t)))
+   (t
+    (remove-hook 'pre-command-hook #'evil-insert-repeat-hook)
+    (setq evil-insert-repeat-info evil-repeat-info)
+    (evil-set-marker ?^ nil t)
+    (unless evil-want-fine-undo
+      (evil-end-undo-step t))
+    (when evil-move-cursor-back
+      (evil-move-cursor-back)))))
+
+(defun evil-insert-repeat-hook ()
+  "Record insertion keys in `evil-insert-repeat-info'."
+  (setq evil-insert-repeat-info (last evil-repeat-info))
+  (remove-hook 'pre-command-hook #'evil-insert-repeat-hook))
+(put 'evil-insert-repeat-hook 'permanent-local-hook t)
+
+(defun evil-cleanup-insert-state ()
+  "Called when Insert state is about to be exited.
+Handles the repeat-count of the insertion command."
+  (when evil-insert-count
+    (dotimes (i (1- evil-insert-count))
+      (when evil-insert-lines
+        (evil-insert-newline-below))
+      (when (fboundp 'evil-execute-repeat-info)
+        (evil-execute-repeat-info
+         (cdr evil-insert-repeat-info)))))
+  (when evil-insert-vcount
+    (let ((line (nth 0 evil-insert-vcount))
+          (col (nth 1 evil-insert-vcount))
+          (vcount (nth 2 evil-insert-vcount)))
+      (save-excursion
+        (dotimes (v (1- vcount))
+          (goto-char (point-min))
+          (forward-line (+ line v))
+          (when (or (not evil-insert-skip-empty-lines)
+                    (not (integerp col))
+                    (save-excursion
+                      (evil-move-end-of-line)
+                      (>= (current-column) col)))
+            (if (integerp col)
+                (move-to-column col t)
+              (funcall col))
+            (dotimes (i (or evil-insert-count 1))
+              (when (fboundp 'evil-execute-repeat-info)
+                (evil-execute-repeat-info
+                 (cdr evil-insert-repeat-info))))))))))
+
+;;; Visual state
+
+;; Visual selections are implemented in terms of types, and are
+;; compatible with the Emacs region. This is achieved by "translating"
+;; the region to the selected text right before a command is executed.
+;; If the command is a motion, the translation is postponed until a
+;; non-motion command is invoked.
+;;
+;; Visual state activates the region, enabling Transient Mark mode if
+;; not already enabled. This is only temporay: if Transient Mark mode
+;; was disabled before entering Visual state, it is disabled when
+;; exiting Visual state. This allows Visual state to harness the
+;; "transient" behavior of many commands without overriding the user's
+;; preferences in other states.
+
+(defmacro evil-define-visual-selection (selection doc &rest body)
+  "Define a Visual selection SELECTION.
+Creates a command evil-visual-SELECTION for enabling the selection.
+DOC is the function's documentation string. The following keywords
+may be specified in BODY:
+
+:message STRING         Status message when enabling the selection.
+:type TYPE              Type to use (defaults to SELECTION).
+
+Following the keywords is optional code which is executed each time
+the selection is enabled.
+
+\(fn SELECTION DOC [[KEY VAL]...] BODY...)"
+  (declare (indent defun)
+           (debug (&define name stringp
+                           [&rest keywordp sexp]
+                           def-body)))
+  (let* ((name (intern (format "evil-visual-%s" selection)))
+         (message (intern (format "%s-message" name)))
+         (type selection)
+         arg key string)
+    ;; collect keywords
+    (while (keywordp (car-safe body))
+      (setq key (pop body)
+            arg (pop body))
+      (cond
+       ((eq key :message)
+        (setq string arg))
+       ((eq key :type)
+        (setq type arg))))
+    ;; macro expansion
+    `(progn
+       (add-to-list 'evil-visual-alist (cons ',selection ',name))
+       (defvar ,name ',type ,(format "*%s" doc))
+       (defvar ,message ,string ,doc)
+       (evil-define-command ,name (&optional mark point type message)
+         ,@(when doc `(,doc))
+         :keep-visual t
+         :repeat nil
+         (interactive
+          (list nil nil
+                (if (and (evil-visual-state-p)
+                         (eq evil-visual-selection ',selection))
+                    'exit ,name) t))
+         (if (eq type 'exit)
+             (evil-exit-visual-state)
+           (setq type (or type ,name)
+                 evil-visual-selection ',selection)
+           (evil-visual-make-region mark point type message)
+           ,@body))
+       ',selection)))
+
+(evil-define-visual-selection char
+  "Characterwise selection."
+  :type inclusive
+  :message "-- VISUAL --")
+
+(evil-define-visual-selection line
+  "Linewise selection."
+  :message "-- VISUAL LINE --")
+
+(evil-define-visual-selection block
+  "Blockwise selection."
+  :message "-- VISUAL BLOCK --"
+  (evil-transient-mark -1)
+  ;; refresh the :corner property
+  (setq evil-visual-properties
+        (plist-put evil-visual-properties :corner
+                   (evil-visual-block-corner 'upper-left))))
+
+(evil-define-state visual
+  "Visual state."
+  :tag " <V> "
+  :enable (motion normal)
+  :message 'evil-visual-message
+  (cond
+   ((evil-visual-state-p)
+    (evil-save-mark)
+    (cond
+     ((region-active-p)
+      (if (< (evil-visual-direction) 0)
+          (evil-visual-select (region-beginning) (region-end)
+                              evil-visual-char
+                              (evil-visual-direction))
+        (evil-visual-make-selection (mark t) (point)
+                                    evil-visual-char))
+      (evil-visual-highlight))
+     (t
+      (evil-visual-make-region (point) (point) evil-visual-char)))
+    (add-hook 'pre-command-hook #'evil-visual-pre-command nil t)
+    (add-hook 'post-command-hook #'evil-visual-post-command nil t)
+    (add-hook 'deactivate-mark-hook #'evil-visual-deactivate-hook nil t))
+   (t
+    ;; Postpone deactivation of region if next state is Insert.
+    ;; This gives certain insertion commands (auto-pairing characters,
+    ;; for example) an opportunity to access the region.
+    (if (and (eq evil-next-state 'insert)
+             (eq evil-visual-selection 'char))
+        (add-hook 'evil-normal-state-entry-hook
+                  #'evil-visual-deactivate-hook nil t)
+      (evil-visual-deactivate-hook))
+    (setq evil-visual-region-expanded nil)
+    (remove-hook 'pre-command-hook #'evil-visual-pre-command t)
+    (remove-hook 'post-command-hook #'evil-visual-post-command t)
+    (remove-hook 'deactivate-mark-hook #'evil-visual-deactivate-hook t)
+    (evil-visual-highlight -1))))
+
+(defun evil-visual-pre-command (&optional command)
+  "Run before each COMMAND in Visual state.
+Expand the region to the selection unless COMMAND is a motion."
+  (when (evil-visual-state-p)
+    (setq command (or command this-command))
+    (unless (evil-get-command-property command :keep-visual)
+      (evil-visual-expand-region
+       ;; exclude final newline from linewise selection
+       ;; unless the command has real need of it
+       (and (eq (evil-visual-type) 'line)
+            (evil-get-command-property command :exclude-newline))))))
+(put 'evil-visual-pre-command 'permanent-local-hook t)
+
+(defun evil-visual-post-command (&optional command)
+  "Run after each COMMAND in Visual state.
+If COMMAND is a motion, refresh the selection;
+otherwise exit Visual state."
+  (when (evil-visual-state-p)
+    (setq command (or command this-command))
+    (cond
+     ((or quit-flag
+          (eq command #'keyboard-quit)
+          ;; Is `mark-active' nil for an unexpanded region?
+          (and (not evil-visual-region-expanded)
+               (not (region-active-p))
+               (not (eq evil-visual-selection 'block))))
+      (evil-exit-visual-state))
+     (evil-visual-region-expanded
+      (evil-visual-contract-region)
+      (evil-visual-highlight))
+     (t
+      (evil-visual-refresh)
+      (evil-visual-highlight)))))
+(put 'evil-visual-post-command 'permanent-local-hook t)
+
+(defun evil-visual-activate-hook (&optional command)
+  "Enable Visual state if the region is activated."
+  (evil-delay nil
+      ;; the activation may only be momentary, so re-check
+      ;; in `post-command-hook' before entering Visual state
+      '(unless (or (evil-visual-state-p)
+                   (evil-insert-state-p)
+                   (evil-emacs-state-p))
+         (when (region-active-p)
+           (evil-visual-state)))
+    'post-command-hook nil t
+    "evil-activate-visual-state"))
+(put 'evil-visual-activate-hook 'permanent-local-hook t)
+
+(defun evil-visual-deactivate-hook (&optional command)
+  "Deactivate the region and restore Transient Mark mode."
+  (setq command (or command this-command))
+  (remove-hook 'deactivate-mark-hook
+               #'evil-visual-deactivate-hook t)
+  (remove-hook 'evil-normal-state-entry-hook
+               #'evil-visual-deactivate-hook t)
+  (cond
+   ((and (evil-visual-state-p) command
+         (not (evil-get-command-property command :keep-visual)))
+    (setq evil-visual-region-expanded nil)
+    (evil-exit-visual-state)
+    (evil-active-region -1)
+    (evil-restore-mark))
+   ((not (evil-visual-state-p))
+    (evil-active-region -1)
+    (evil-restore-mark))))
+(put 'evil-visual-deactivate-hook 'permanent-local-hook t)
+
+(evil-define-command evil-exit-visual-state (&optional buffer message)
+  "Exit from Visual state to the previous state."
+  :keep-visual t
+  :repeat abort
+  (with-current-buffer (or buffer (current-buffer))
+    (when (evil-visual-state-p)
+      (when evil-visual-region-expanded
+        (evil-visual-contract-region))
+      (evil-change-to-previous-state))))
+
+(defun evil-visual-message (&optional selection)
+  "Create an echo area message for SELECTION.
+SELECTION is a kind of selection as defined by
+`evil-define-visual-selection', such as `char', `line'
+or `block'."
+  (let (message)
+    (setq selection (or selection evil-visual-selection))
+    (when selection
+      (setq message
+            (symbol-value (intern (format "evil-visual-%s-message"
+                                          selection))))
+      (cond
+       ((functionp message)
+        (funcall message))
+       ((stringp message)
+        (evil-echo "%s" message))))))
+
+(defun evil-visual-select (beg end &optional type dir message)
+  "Create a Visual selection of type TYPE from BEG to END.
+Point and mark are positioned so that the resulting selection
+has the specified boundaries. If DIR is negative, point precedes mark,
+otherwise it succedes it. To specify point and mark directly,
+use `evil-visual-make-selection'."
+  (let* ((range (evil-contract beg end type))
+         (mark (evil-range-beginning range))
+         (point (evil-range-end range))
+         (dir (or dir 1)))
+    (when (< dir 0)
+      (evil-swap mark point))
+    (evil-visual-make-selection mark point type message)))
+
+(defun evil-visual-make-selection (mark point &optional type message)
+  "Create a Visual selection with point at POINT and mark at MARK.
+The boundaries of the selection are inferred from these
+and the current TYPE. To specify the boundaries and infer
+mark and point, use `evil-visual-select' instead."
+  (let* ((selection (evil-visual-selection-for-type type))
+         (func (evil-visual-selection-function selection))
+         (prev (and (evil-visual-state-p) evil-visual-selection))
+         (mark (evil-normalize-position mark))
+         (point (evil-normalize-position point))
+         (state evil-state))
+    (unless (evil-visual-state-p)
+      (evil-visual-state))
+    (setq evil-visual-selection selection)
+    (funcall func mark point type
+             ;; signal a message when changing the selection
+             (when (or (not (evil-visual-state-p state))
+                       (not (eq selection prev)))
+               message))))
+
+(defun evil-visual-make-region (mark point &optional type message)
+  "Create an active region from MARK to POINT.
+If TYPE is given, also set the Visual type.
+If MESSAGE is given, display it in the echo area."
+  (interactive)
+  (let* ((point (evil-normalize-position
+                 (or point (point))))
+         (mark (evil-normalize-position
+                (or mark
+                    (when (or (evil-visual-state-p)
+                              (region-active-p))
+                      (mark t))
+                    point))))
+    (unless (evil-visual-state-p)
+      (evil-visual-state))
+    (evil-active-region 1)
+    (setq evil-visual-region-expanded nil)
+    (evil-visual-refresh mark point type)
+    (cond
+     ((null evil-echo-state))
+     ((stringp message)
+      (evil-echo "%s" message))
+     (message
+      (cond
+       ((stringp evil-visual-state-message)
+        (evil-echo "%s" evil-visual-state-message))
+       ((functionp evil-visual-state-message)
+        (funcall evil-visual-state-message)))))))
+
+(defun evil-visual-expand-region (&optional exclude-newline)
+  "Expand the region to the Visual selection.
+If EXCLUDE-NEWLINE is non-nil and the selection ends with a newline,
+exclude that newline from the region."
+  (when (and (evil-visual-state-p)
+             (not evil-visual-region-expanded))
+    (let ((mark evil-visual-beginning)
+          (point evil-visual-end))
+      (when (< evil-visual-direction 0)
+        (evil-swap mark point))
+      (setq evil-visual-region-expanded t)
+      (evil-visual-refresh mark point)
+      (when (and exclude-newline
+                 (save-excursion
+                   (goto-char evil-visual-end)
+                   (and (bolp) (not (bobp)))))
+        (if (< evil-visual-direction 0)
+            (evil-move-mark (max point (1- (mark))))
+          (goto-char (max mark (1- (point)))))))))
+
+(defun evil-visual-contract-region ()
+  "The inverse of `evil-visual-expand-region'.
+Create a Visual selection that expands to the current region."
+  (evil-visual-refresh)
+  (setq evil-visual-region-expanded nil)
+  (evil-visual-refresh evil-visual-mark evil-visual-point))
+
+(defun evil-visual-refresh (&optional mark point type &rest properties)
+  "Refresh point, mark and Visual variables.
+Refreshes `evil-visual-beginning', `evil-visual-end',
+`evil-visual-mark', `evil-visual-point', `evil-visual-selection',
+`evil-visual-direction', `evil-visual-properties' and `evil-this-type'."
+  (let* ((point (or point (point)))
+         (mark (or mark (mark t) point))
+         (dir (evil-visual-direction))
+         (type (or type (evil-visual-type evil-visual-selection)
+                   (evil-visual-type)))
+         range)
+    (evil-move-mark mark)
+    (goto-char point)
+    (setq evil-visual-beginning
+          (or evil-visual-beginning
+              (let ((marker (make-marker)))
+                (move-marker marker (min point mark))))
+          evil-visual-end
+          (or evil-visual-end
+              (let ((marker (make-marker)))
+                (set-marker-insertion-type marker t)
+                (move-marker marker (max point mark))))
+          evil-visual-mark
+          (or evil-visual-mark
+              (let ((marker (make-marker)))
+                (move-marker marker mark)))
+          evil-visual-point
+          (or evil-visual-point
+              (let ((marker (make-marker)))
+                (move-marker marker point))))
+    (setq evil-visual-properties
+          (evil-concat-plists evil-visual-properties properties))
+    (cond
+     (evil-visual-region-expanded
+      (setq type (or (evil-visual-type) type))
+      (move-marker evil-visual-beginning (min point mark))
+      (move-marker evil-visual-end (max point mark))
+      ;; if the type is one-to-one, we can safely refresh
+      ;; the unexpanded positions as well
+      (when (evil-type-property type :one-to-one)
+        (setq range (apply #'evil-contract point mark type
+                           evil-visual-properties)
+              mark (evil-range-beginning range)
+              point (evil-range-end range))
+        (when (< dir 0)
+          (evil-swap mark point))
+        (move-marker evil-visual-mark mark)
+        (move-marker evil-visual-point point)))
+     (t
+      (setq range (apply #'evil-expand point mark type
+                         evil-visual-properties)
+            type (evil-type range type))
+      (move-marker evil-visual-beginning (evil-range-beginning range))
+      (move-marker evil-visual-end (evil-range-end range))
+      (move-marker evil-visual-mark mark)
+      (move-marker evil-visual-point point)))
+    (setq evil-visual-direction dir
+          evil-this-type type)))
+
+(defun evil-visual-highlight (&optional arg)
+  "Highlight Visual selection, depending on the Visual type.
+With negative ARG, disable highlighting."
+  (cond
+   ((and (numberp arg) (< arg 1))
+    (when evil-visual-overlay
+      (delete-overlay evil-visual-overlay)
+      (setq evil-visual-overlay nil))
+    (when evil-visual-block-overlays
+      (mapc #'delete-overlay evil-visual-block-overlays)
+      (setq evil-visual-block-overlays nil)))
+   ((eq evil-visual-selection 'block)
+    (when evil-visual-overlay
+      (evil-visual-highlight -1))
+    (evil-visual-highlight-block
+     evil-visual-beginning
+     evil-visual-end))
+   (t
+    (when evil-visual-block-overlays
+      (evil-visual-highlight -1))
+    (if evil-visual-overlay
+        (move-overlay evil-visual-overlay
+                      evil-visual-beginning evil-visual-end)
+      (setq evil-visual-overlay
+            (make-overlay evil-visual-beginning evil-visual-end)))
+    (overlay-put evil-visual-overlay 'face 'region)
+    (overlay-put evil-visual-overlay 'priority 99))))
+
+(defun evil-visual-highlight-block (beg end &optional overlays)
+  "Highlight rectangular region from BEG to END.
+Do this by putting an overlay on each line within the rectangle.
+Each overlay extends across all the columns of the rectangle.
+Reuse overlays where possible to prevent flicker."
+  (let* ((point (point))
+         (mark (or (mark t) point))
+         (overlays (or overlays 'evil-visual-block-overlays))
+         (old (symbol-value overlays))
+         beg-col end-col new nlines overlay window-beg window-end)
+    ;; calculate the rectangular region represented by BEG and END,
+    ;; but put BEG in the upper-left corner and END in the lower-right
+    ;; if not already there
+    (save-excursion
+      (setq beg-col (evil-column beg)
+            end-col (evil-column end))
+      (when (>= beg-col end-col)
+        (if (= beg-col end-col)
+            (setq end-col (1+ end-col))
+          (evil-sort beg-col end-col))
+        (setq beg (save-excursion (goto-char beg)
+                                  (evil-move-to-column beg-col)
+                                  (point))
+              end (save-excursion (goto-char end)
+                                  (evil-move-to-column end-col 1)
+                                  (point))))
+      ;; force a redisplay so we can do reliable window
+      ;; BEG/END calculations
+      (sit-for 0)
+      (setq window-beg (max (window-start) beg)
+            window-end (min (window-end) (1+ end))
+            nlines (count-lines window-beg
+                                (min window-end (point-max))))
+      ;; iterate over those lines of the rectangle which are
+      ;; visible in the currently selected window
+      (goto-char window-beg)
+      (dotimes (i nlines)
+        (let (before after row-beg row-end)
+          ;; beginning of row
+          (evil-move-to-column beg-col)
+          (when (< (current-column) beg-col)
+            ;; prepend overlay with virtual spaces if unable to
+            ;; move directly to the first column
+            (setq before
+                  (propertize
+                   (make-string
+                    (- beg-col (current-column)) ?\ )
+                   'face
+                   (or (get-text-property (1- (point)) 'face)
+                       'default))))
+          (setq row-beg (point))
+          ;; end of row
+          (evil-move-to-column end-col)
+          (when (< (current-column) end-col)
+            ;; append overlay with virtual spaces if unable to
+            ;; move directly to the last column
+            (setq after
+                  (propertize
+                   (make-string
+                    (if (= (point) row-beg)
+                        (- end-col beg-col)
+                      (- end-col (current-column)))
+                    ?\ ) 'face 'region))
+            ;; place cursor on one of the virtual spaces
+            (if (= point row-beg)
+                (put-text-property
+                 0 (min (length after) 1)
+                 'cursor t after)
+              (put-text-property
+               (max 0 (1- (length after))) (length after)
+               'cursor t after)))
+          (setq row-end (min (point) (line-end-position)))
+          ;; trim old leading overlays
+          (while (and old
+                      (setq overlay (car old))
+                      (< (overlay-start overlay) row-beg)
+                      (/= (overlay-end overlay) row-end))
+            (delete-overlay overlay)
+            (setq old (cdr old)))
+          ;; reuse an overlay if possible, otherwise create one
+          (cond
+           ((and old (setq overlay (car old))
+                 (or (= (overlay-start overlay) row-beg)
+                     (= (overlay-end overlay) row-end)))
+            (move-overlay overlay row-beg row-end)
+            (overlay-put overlay 'before-string before)
+            (overlay-put overlay 'after-string after)
+            (setq new (cons overlay new)
+                  old (cdr old)))
+           (t
+            (setq overlay (make-overlay row-beg row-end))
+            (overlay-put overlay 'before-string before)
+            (overlay-put overlay 'after-string after)
+            (setq new (cons overlay new)))))
+        (forward-line 1))
+      ;; display overlays
+      (dolist (overlay new)
+        (overlay-put overlay 'face 'region)
+        (overlay-put overlay 'priority 99))
+      ;; trim old overlays
+      (dolist (overlay old)
+        (delete-overlay overlay))
+      (set overlays (nreverse new)))))
+
+(defun evil-visual-range ()
+  "Return the Visual selection as a range.
+This is a list (BEG END TYPE PROPERTIES...), where BEG is the
+beginning of the selection, END is the end of the selection,
+TYPE is the selection's type, and PROPERTIES is a property list
+of miscellaneous selection attributes."
+  (apply #'evil-range
+         evil-visual-beginning evil-visual-end
+         (evil-visual-type) evil-visual-properties))
+
+(defun evil-visual-direction ()
+  "Return direction of Visual selection.
+The direction is -1 if point precedes mark and 1 otherwise.
+See also the variable `evil-visual-direction', which holds
+the direction of the last selection."
+  (let* ((point (point))
+         (mark (or (mark t) point)))
+    (if (< point mark) -1 1)))
+
+(defun evil-visual-type (&optional selection)
+  "Return the type of the Visual selection.
+If SELECTION is specified, return the type of that instead."
+  (if (and (null selection) (evil-visual-state-p))
+      (or evil-this-type (evil-visual-type evil-visual-selection))
+    (setq selection (or selection evil-visual-selection))
+    (symbol-value (cdr-safe (assq selection evil-visual-alist)))))
+
+(defun evil-visual-goto-end ()
+  "Go to the last line of the Visual selection.
+This position may differ from `evil-visual-end' depending on
+the selection type, and is contained in the selection."
+  (let ((range (evil-contract-range (evil-visual-range))))
+    (goto-char (evil-range-end range))))
+
+(defun evil-visual-alist ()
+  "Return an association list from types to selection symbols."
+  (mapcar #'(lambda (e)
+              (cons (symbol-value (cdr-safe e)) (cdr-safe e)))
+          evil-visual-alist))
+
+(defun evil-visual-selection-function (selection)
+  "Return a selection function for TYPE.
+Default to `evil-visual-make-region'."
+  (or (cdr-safe (assq selection evil-visual-alist))
+      ;; generic selection function
+      'evil-visual-make-region))
+
+(defun evil-visual-selection-for-type (type)
+  "Return a Visual selection for TYPE."
+  (catch 'done
+    (dolist (selection evil-visual-alist)
+      (when (eq (symbol-value (cdr selection)) type)
+        (throw 'done (car selection))))))
+
+(defun evil-visual-block-corner (&optional corner point mark)
+  "Block corner corresponding to POINT, with MARK in opposite corner.
+Depending on POINT and MARK, the return value is `upper-left',
+`upper-right', `lower-left' or `lower-right':
+
+        upper-left +---+ upper-right
+                   |   |
+        lower-left +---+ lower-right
+
+One-column or one-row blocks are ambiguous. In such cases,
+the horizontal or vertical component of CORNER is used.
+CORNER defaults to `upper-left'."
+  (let* ((point (or point (point)))
+         (mark (or mark (mark t)))
+         (corner (symbol-name
+                  (or corner
+                      (and (overlayp evil-visual-overlay)
+                           (overlay-get evil-visual-overlay
+                                        :corner))
+                      'upper-left)))
+         (point-col (evil-column point))
+         (mark-col (evil-column mark))
+         horizontal vertical)
+    (cond
+     ((= point-col mark-col)
+      (setq horizontal
+            (or (and (string-match "left\\|right" corner)
+                     (match-string 0 corner))
+                "left")))
+     ((< point-col mark-col)
+      (setq horizontal "left"))
+     ((> point-col mark-col)
+      (setq horizontal "right")))
+    (cond
+     ((= (line-number-at-pos point)
+         (line-number-at-pos mark))
+      (setq vertical
+            (or (and (string-match "upper\\|lower" corner)
+                     (match-string 0 corner))
+                "upper")))
+     ((< point mark)
+      (setq vertical "upper"))
+     ((> point mark)
+      (setq vertical "lower")))
+    (intern (format "%s-%s" vertical horizontal))))
+
+;;; Operator-Pending state
+
+(evil-define-state operator
+  "Operator-Pending state."
+  :tag " <O> "
+  :cursor evil-half-cursor
+  :enable (evil-operator-shortcut-map operator motion normal))
+
+(evil-define-keymap evil-operator-shortcut-map
+  "Keymap for Operator-Pending shortcuts like \"dd\" and \"gqq\"."
+  :local t
+  (setq evil-operator-shortcut-map (make-sparse-keymap))
+  (evil-initialize-local-keymaps))
+
+;; the half-height "Operator-Pending cursor" cannot be specified
+;; as a static `cursor-type' value, since its height depends on
+;; the current font size
+(defun evil-half-cursor ()
+  "Change cursor to a half-height box.
+\(This is really just a thick horizontal bar.)"
+  (let (height)
+    ;; make `window-line-height' reliable
+    (redisplay)
+    (setq height (window-line-height))
+    (setq height (+ (nth 0 height) (nth 3 height)))
+    ;; cut cursor height in half
+    (setq height (/ height 2))
+    (setq cursor-type (cons 'hbar height))
+    ;; ensure the cursor is redisplayed
+    (force-window-update (selected-window))
+    (redisplay)))
+
+;;; Replace state
+
+(evil-define-state replace
+  "Replace state."
+  :tag " <R> "
+  :cursor hbar
+  :message "-- REPLACE --"
+  (cond
+   ((evil-replace-state-p)
+    (overwrite-mode 1)
+    (add-hook 'pre-command-hook #'evil-replace-pre-command nil t))
+   (t
+    (overwrite-mode -1)
+    (remove-hook 'pre-command-hook #'evil-replace-pre-command t)
+    (when evil-move-cursor-back
+      (evil-move-cursor-back))))
+  (setq evil-replace-alist nil))
+
+(defun evil-replace-pre-command ()
+  "Remember the character under point."
+  (when (evil-replace-state-p)
+    (unless (assq (point) evil-replace-alist)
+      (add-to-list 'evil-replace-alist
+                   (cons (point)
+                         (unless (eolp)
+                           (char-after)))))))
+(put 'evil-replace-pre-command 'permanent-local-hook t)
+
+(defun evil-replace-backspace ()
+  "Restore character under cursor."
+  (interactive)
+  (let (char)
+    (backward-char)
+    (when (assq (point) evil-replace-alist)
+      (setq char (cdr (assq (point) evil-replace-alist)))
+      (save-excursion
+        (delete-char 1)
+        (when char
+          (insert char))))))
+
+;;; Motion state
+
+(evil-define-state motion
+  "Motion state."
+  :tag " <M> "
+  :suppress-keymap t)
+
+;;; Emacs state
 
 (evil-define-state emacs
   "Emacs state."
   :tag " <E> "
   :message "-- EMACS --"
   :input-method t
-  (evil-esc-mode -1))
+  :intercept-esc nil)
 
 (provide 'evil-states)
 
