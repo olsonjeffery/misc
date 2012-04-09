@@ -32,6 +32,10 @@
 (per-platform-setup)
 
 (setq-default tab-width 4)
+(setq indent-tabs-mode nil)
+(setq c-indent-level 4)
+(setq c-default-style "linux"
+	  c-basic-offset 4)
 (defun coffee-custom ()
 	"coffee-mode-hook"
 	(set (make-local-variable 'tab-width) 2))
@@ -63,6 +67,7 @@
                              "~/Dropbox/org/work.org" 
                              "~/Dropbox/org/adept.org" 
                              "~/Dropbox/org/symmetric.org" 
+                             "~/Dropbox/org/rust.org" 
                              "~/Dropbox/org/personal.org"))
 
 ;; ... dropbox stuff..
@@ -83,12 +88,16 @@
 (require 'semantic-ia)
 (require 'semantic-gcc)
 
+;; rust-mode
+(add-to-list 'load-path "~/.emacs.d/vendor/rust")
+(require 'rust-mode)
+
 ;; auto-complete-mode
 (require 'auto-complete-config)
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/vendor//ac-dict")
 (ac-config-default)
-(add-to-list 'ac-modes 'coffee-mode)
-(add-to-list 'ac-sources 'ac-source-semantic)
+(add-to-list 'ac-modes 'coffee-mode 'rust-mode)
+(add-to-list 'ac-sources 'ac-source-semantic 'ac-source-words-in-same-mode-buffers)
 (setq ac-show-menu-immediately-on-auto-complete t)
 (setq ac-auto-show-menu 1)
 
@@ -126,10 +135,6 @@
 (define-key ctl-x-map "S" 'save-current-configuration)
 (define-key ctl-x-map "F" 'resume)
 (define-key ctl-x-map "K" 'wipe)
-
-;; rust-mode
-(add-to-list 'load-path "~/.emacs.d/vendor/rust")
-(require 'rust-mode)
 
 ;###################################
 ;###################################
