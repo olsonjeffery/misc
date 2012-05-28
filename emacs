@@ -89,10 +89,10 @@
 (require 'monky)
 
 ;; cedet
-(load-file "~/.emacs.d/cedet/common/cedet.el")
-(semantic-load-enable-excessive-code-helpers)
-(require 'semantic-ia)
-(require 'semantic-gcc)
+;;(load-file "~/.emacs.d/cedet/common/cedet.el")
+;;(semantic-load-enable-excessive-code-helpers)
+;;(require 'semantic-ia)
+;;(require 'semantic-gcc)
 
 ;; rust-mode
 (add-to-list 'load-path "~/.emacs.d/vendor/rust")
@@ -173,8 +173,3 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-;; load up my ede projects.. this should probably be its own
-;; thing and only on linux
-(when (not (string= "w32" window-system))
-  (load-file "~/src/sugs/src/sugs-core/sugs-core-ede-proj.el"))
