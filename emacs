@@ -7,6 +7,11 @@
 ;; EVIL vim for emacs stuff
 (require 'evil)
 (evil-mode 1)
+;; exit insert mode w/ ctrl+j
+(define-key global-map "\C-j" 'evil-esc)
+
+;; scroll one line at a time
+(setq scroll-step 1)
 
 ;; window switching w/ start key (loonix only)
 (defun jeff-back-window ()
@@ -42,7 +47,8 @@
 (add-hook 'coffee-mode-hook
 					'(lambda () (coffee-custom)))
 ;;; Some additional bs to load the marmalade repo
-;(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+;(add-to-list 'package-archives
+;			 '("marmalade" . "http://marmalade-repo.org/packages/"))
 
 ;; save/restore desktop
 (desktop-save-mode 1)
