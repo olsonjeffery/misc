@@ -3,6 +3,6 @@ hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)
 
 # Default screens
 screen -t r
-screen -t sugs
-screen -t mh
 screen -t misc
+screen -t node
+screen -t rust
