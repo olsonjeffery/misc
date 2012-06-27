@@ -21,16 +21,18 @@
 (require 'color-theme)
 (defun per-platform-setup ()
 	(when (string= "w32" window-system)
-		(require 'powershell)
+		(require 'powershell))
 	(when (not (string= "w32" window-system))
-		(global-set-key (kbd "<s-down>") 'other-window)
-		(global-set-key (kbd "<s-up>") 'jeff-back-window)
+	))
+(global-set-key (kbd "<s-down>") 'other-window)
+(global-set-key (kbd "<s-up>") 'jeff-back-window)
 (per-platform-setup)
+
 ;; we're hopefully running emacs-snapshot, so let's use
 ;; the new system
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized")
-(load-theme 'solarized-dark t)))
+(load-theme 'solarized-dark t)
 
 (setq-default tab-width 4)
 (setq indent-tabs-mode nil)
