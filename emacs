@@ -31,7 +31,9 @@
 		;; otherwise we're hopefully running emacs-snapshot, so let's use
 		;; the new system
 		(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-		(load-theme 'zenburn)))
+		(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized")
+		;(load-theme 'zenburn)))
+		(load-theme 'solarized-dark t)))
 		(global-set-key (kbd "<s-down>") 'other-window)
 		(global-set-key (kbd "<s-up>") 'jeff-back-window)
 (per-platform-setup)
@@ -41,6 +43,8 @@
 (setq c-indent-level 4)
 (setq c-default-style "linux"
 	  c-basic-offset 4)
+(global-linum-mode 1)
+(setq linum-format "%d ")
 (defun coffee-custom ()
 	"coffee-mode-hook"
 	(set (make-local-variable 'tab-width) 2))
@@ -97,15 +101,21 @@
 ;; rust-mode
 (add-to-list 'load-path "~/.emacs.d/vendor/rust")
 (require 'rust-mode)
+(defun my-rust-mode-hook ()
+  ;(auto-complete-mode 1)
+  )
+(add-hook 'rust-mode-hook 'my-rust-mode-hook)
 
 ;; auto-complete-mode
 (require 'auto-complete-config)
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/vendor//ac-dict")
 (ac-config-default)
-(add-to-list 'ac-modes 'coffee-mode 'rust-mode)
 (add-to-list 'ac-sources 'ac-source-semantic 'ac-source-words-in-same-mode-buffers)
 (setq ac-show-menu-immediately-on-auto-complete t)
 (setq ac-auto-show-menu 1)
+(add-to-list 'ac-modes 'coffee-mode 'rust-mode)
+(add-to-list 'auto-mode-alist '("\\.cpp\\'" . auto-complete-mode))
+(add-to-list 'auto-mode-alist '("\\.rust\\'" . auto-complete-mode))
 
 ;; speedbar config
 (require 'sr-speedbar)
@@ -173,3 +183,4 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'scroll-left 'disabled nil)
