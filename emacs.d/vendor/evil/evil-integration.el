@@ -1,15 +1,18 @@
 ;;;; Integrate Evil with other modules
 
 (require 'evil-maps)
+(require 'evil-core)
 
-(mapc #'evil-declare-motion evil-motions)
-(mapc #'evil-declare-not-repeat
+(mapc #'(lambda (cmd)
+          (evil-set-command-property cmd :keep-visual t)
+          (evil-declare-not-repeat cmd))
       '(digit-argument
         negative-argument
         universal-argument
         universal-argument-minus
-        universal-argument-other-key
-        what-cursor-position))
+        universal-argument-other-key))
+(mapc #'evil-declare-not-repeat
+      '(what-cursor-position))
 (mapc #'evil-declare-change-repeat
       '(dabbrev-expand
         hippie-expand))
@@ -17,6 +20,7 @@
       '(balance-windows
         eval-expression
         execute-extended-command
+        exit-minibuffer
         compile
         delete-window
         delete-other-windows
@@ -33,21 +37,6 @@
 
 (dolist (cmd '(keyboard-quit keyboard-escape-quit))
   (evil-set-command-property cmd :suppress-operator t))
-
-(dolist (cmd evil-visual-newline-commands)
-  (evil-set-command-property cmd :exclude-newline t))
-
-(dolist (map evil-overriding-maps)
-  (evil-delay `(and (boundp ',(car map)) (keymapp ,(car map)))
-      `(evil-make-overriding-map ,(car map) ',(cdr map))
-    'after-load-functions
-    (format "evil-make-overriding-%s" (car map))))
-
-(dolist (map evil-intercept-maps)
-  (evil-delay `(and (boundp ',(car map)) (keymapp ,(car map)))
-      `(evil-make-intercept-map ,(car map) ',(cdr map))
-    'after-load-functions
-    (format "evil-make-intercept-%s" (car map))))
 
 ;;; key-binding
 
@@ -68,6 +57,17 @@
   (let (evil-esc-mode)
     ad-do-it))
 
+;; Calling `keyboard-quit' should cancel repeat
+(defadvice keyboard-quit (before evil activate)
+  (when (fboundp 'evil-repeat-abort)
+    (evil-repeat-abort)))
+
+;; etags-select
+;; FIXME: probably etags-select should be recomended in docs
+(eval-after-load 'etags-select
+  '(progn
+     (define-key evil-motion-state-map "g]" 'etags-select-find-tag-at-point)))
+
 ;;; Buffer-menu
 
 (evil-add-hjkl-bindings Buffer-menu-mode-map 'motion)
@@ -85,9 +85,10 @@
      ;; use the standard Dired bindings as a base
      (evil-make-overriding-map dired-mode-map 'normal t)
      (evil-add-hjkl-bindings dired-mode-map 'normal
-       "J" 'dired-goto-file       ; "j"
-       "K" 'dired-do-kill-lines   ; "k"
-       "r" 'dired-do-redisplay))) ; "l"
+       "J" 'dired-goto-file                   ; "j"
+       "K" 'dired-do-kill-lines               ; "k"
+       "r" 'dired-do-redisplay                ; "l"
+       ";" (lookup-key dired-mode-map ":")))) ; ":d", ":v", ":s", ":e"
 
 (eval-after-load 'wdired
   '(progn
@@ -100,6 +101,10 @@
 (eval-after-load 'elp
   '(defadvice elp-results (after evil activate)
      (evil-motion-state)))
+
+;;; ERT
+
+(evil-add-hjkl-bindings ert-results-mode-map 'motion)
 
 ;;; Info
 
@@ -124,7 +129,7 @@
       (setq pos
             (catch 'end
               (dotimes (var (1+ (* 2 evil-show-paren-range)))
-                (if (evenp var)
+                (if (zerop (mod var 2))
                     (setq pos (+ pos var))
                   (setq pos (- pos var)))
                 (setq syntax (syntax-class (syntax-after pos)))
@@ -159,6 +164,15 @@
   "u" 'speedbar-up-directory
   "o" 'speedbar-toggle-line-expansion
   (kbd "RET") 'speedbar-edit-line)
+
+;; Ibuffer
+(eval-after-load 'ibuffer
+  '(progn
+     (evil-make-overriding-map ibuffer-mode-map 'normal t)
+     (evil-define-key 'normal ibuffer-mode-map
+       "j" 'evil-next-line
+       "k" 'evil-previous-line
+       "RET" 'ibuffer-visit-buffer)))
 
 ;;; Undo tree visualizer
 
@@ -225,6 +239,15 @@
         (unless (or (eobp) (eolp)) (forward-char))
         ad-do-it)
     ad-do-it))
+
+;; Show key
+(defadvice quail-show-key (around evil activate)
+  "Temporarily go to Emacs state"
+  (evil-with-state emacs ad-do-it))
+
+(defadvice describe-char (around evil activate)
+  "Temporarily go to Emacs state"
+  (evil-with-state emacs ad-do-it))
 
 (provide 'evil-integration)
 

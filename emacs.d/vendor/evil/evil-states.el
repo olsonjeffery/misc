@@ -55,7 +55,9 @@ If the region is activated, enter Visual state."
     (unless evil-want-fine-undo
       (evil-end-undo-step t))
     (when evil-move-cursor-back
-      (evil-move-cursor-back)))))
+      (when (or (evil-normal-state-p evil-next-state)
+                (evil-motion-state-p evil-next-state))
+        (evil-move-cursor-back))))))
 
 (defun evil-insert-repeat-hook ()
   "Record insertion keys in `evil-insert-repeat-info'."
@@ -74,25 +76,34 @@ Handles the repeat-count of the insertion command."
         (evil-execute-repeat-info
          (cdr evil-insert-repeat-info)))))
   (when evil-insert-vcount
-    (let ((line (nth 0 evil-insert-vcount))
-          (col (nth 1 evil-insert-vcount))
-          (vcount (nth 2 evil-insert-vcount)))
-      (save-excursion
-        (dotimes (v (1- vcount))
-          (goto-char (point-min))
-          (forward-line (+ line v))
-          (when (or (not evil-insert-skip-empty-lines)
-                    (not (integerp col))
-                    (save-excursion
-                      (evil-move-end-of-line)
-                      (>= (current-column) col)))
-            (if (integerp col)
-                (move-to-column col t)
-              (funcall col))
-            (dotimes (i (or evil-insert-count 1))
-              (when (fboundp 'evil-execute-repeat-info)
-                (evil-execute-repeat-info
-                 (cdr evil-insert-repeat-info))))))))))
+    (let ((buffer-invisibility-spec buffer-invisibility-spec))
+      ;; make all lines hidden by hideshow temporarily visible
+      (when (listp buffer-invisibility-spec)
+        (setq buffer-invisibility-spec
+              (evil-filter-list
+               #'(lambda (x)
+                   (or (eq x 'hs)
+                       (eq (car-safe x) 'hs)))
+               buffer-invisibility-spec)))
+      (let ((line (nth 0 evil-insert-vcount))
+            (col (nth 1 evil-insert-vcount))
+            (vcount (nth 2 evil-insert-vcount)))
+        (save-excursion
+          (dotimes (v (1- vcount))
+            (goto-char (point-min))
+            (forward-line (+ line v))
+            (when (or (not evil-insert-skip-empty-lines)
+                      (not (integerp col))
+                      (save-excursion
+                        (evil-move-end-of-line)
+                        (>= (current-column) col)))
+              (if (integerp col)
+                  (move-to-column col t)
+                (funcall col))
+              (dotimes (i (or evil-insert-count 1))
+                (when (fboundp 'evil-execute-repeat-info)
+                  (evil-execute-repeat-info
+                   (cdr evil-insert-repeat-info)))))))))))
 
 ;;; Visual state
 
@@ -186,7 +197,7 @@ the selection is enabled.
   :message 'evil-visual-message
   (cond
    ((evil-visual-state-p)
-    (evil-save-mark)
+    (evil-save-transient-mark-mode)
     (cond
      ((region-active-p)
       (if (< (evil-visual-direction) 0)
@@ -239,10 +250,12 @@ otherwise exit Visual state."
      ((or quit-flag
           (eq command #'keyboard-quit)
           ;; Is `mark-active' nil for an unexpanded region?
+          deactivate-mark
           (and (not evil-visual-region-expanded)
                (not (region-active-p))
                (not (eq evil-visual-selection 'block))))
-      (evil-exit-visual-state))
+      (evil-exit-visual-state)
+      (evil-adjust-cursor))
      (evil-visual-region-expanded
       (evil-visual-contract-region)
       (evil-visual-highlight))
@@ -253,16 +266,18 @@ otherwise exit Visual state."
 
 (defun evil-visual-activate-hook (&optional command)
   "Enable Visual state if the region is activated."
-  (evil-delay nil
-      ;; the activation may only be momentary, so re-check
-      ;; in `post-command-hook' before entering Visual state
-      '(unless (or (evil-visual-state-p)
-                   (evil-insert-state-p)
-                   (evil-emacs-state-p))
-         (when (region-active-p)
-           (evil-visual-state)))
-    'post-command-hook nil t
-    "evil-activate-visual-state"))
+  (unless (evil-visual-state-p)
+    (evil-delay nil
+        ;; the activation may only be momentary, so re-check
+        ;; in `post-command-hook' before entering Visual state
+        '(unless (or (evil-visual-state-p)
+                     (evil-insert-state-p)
+                     (evil-emacs-state-p))
+           (when (and (region-active-p)
+                      (not deactivate-mark))
+             (evil-visual-state)))
+      'post-command-hook nil t
+      "evil-activate-visual-state")))
 (put 'evil-visual-activate-hook 'permanent-local-hook t)
 
 (defun evil-visual-deactivate-hook (&optional command)
@@ -276,23 +291,24 @@ otherwise exit Visual state."
    ((and (evil-visual-state-p) command
          (not (evil-get-command-property command :keep-visual)))
     (setq evil-visual-region-expanded nil)
-    (evil-exit-visual-state)
-    (evil-active-region -1)
-    (evil-restore-mark))
+    (evil-exit-visual-state))
    ((not (evil-visual-state-p))
     (evil-active-region -1)
-    (evil-restore-mark))))
+    (evil-restore-transient-mark-mode))))
 (put 'evil-visual-deactivate-hook 'permanent-local-hook t)
 
-(evil-define-command evil-exit-visual-state (&optional buffer message)
-  "Exit from Visual state to the previous state."
+(evil-define-command evil-exit-visual-state (&optional later buffer)
+  "Exit from Visual state to the previous state.
+If LATER is non-nil, exit after the current command."
   :keep-visual t
   :repeat abort
   (with-current-buffer (or buffer (current-buffer))
     (when (evil-visual-state-p)
-      (when evil-visual-region-expanded
-        (evil-visual-contract-region))
-      (evil-change-to-previous-state))))
+      (if later
+          (setq deactivate-mark t)
+        (when evil-visual-region-expanded
+          (evil-visual-contract-region))
+        (evil-change-to-previous-state)))))
 
 (defun evil-visual-message (&optional selection)
   "Create an echo area message for SELECTION.
@@ -497,6 +513,10 @@ Reuse overlays where possible to prevent flicker."
          (mark (or (mark t) point))
          (overlays (or overlays 'evil-visual-block-overlays))
          (old (symbol-value overlays))
+         (eol-col (and (memq this-command '(next-line previous-line))
+                       (numberp temporary-goal-column)
+                       (1+ (min (round temporary-goal-column)
+                                (1- most-positive-fixnum)))))
          beg-col end-col new nlines overlay window-beg window-end)
     ;; calculate the rectangular region represented by BEG and END,
     ;; but put BEG in the upper-left corner and END in the lower-right
@@ -540,8 +560,9 @@ Reuse overlays where possible to prevent flicker."
                        'default))))
           (setq row-beg (point))
           ;; end of row
-          (evil-move-to-column end-col)
-          (when (< (current-column) end-col)
+          (evil-move-to-column (or eol-col end-col))
+          (when (and (not eol-col)
+                     (< (current-column) end-col))
             ;; append overlay with virtual spaces if unable to
             ;; move directly to the last column
             (setq after
@@ -600,7 +621,9 @@ TYPE is the selection's type, and PROPERTIES is a property list
 of miscellaneous selection attributes."
   (apply #'evil-range
          evil-visual-beginning evil-visual-end
-         (evil-visual-type) evil-visual-properties))
+         (evil-visual-type)
+         :expanded t
+         evil-visual-properties))
 
 (defun evil-visual-direction ()
   "Return direction of Visual selection.

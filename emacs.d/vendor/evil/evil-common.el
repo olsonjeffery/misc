@@ -530,25 +530,44 @@ Both COUNT and CMD may be nil."
 Translates it according to the input method."
   (let ((old-global-map (current-global-map))
         (new-global-map (make-sparse-keymap))
-        (overriding-terminal-local-map (make-sparse-keymap))
-        overriding-local-map char)
+        (overriding-terminal-local-map evil-read-key-map)
+        overriding-local-map seq char cmd)
     (unwind-protect
-        (progn
-          (define-key new-global-map [menu-bar]
-            (lookup-key global-map [menu-bar]))
-          (define-key new-global-map [tool-bar]
-            (lookup-key global-map [tool-bar]))
-          (add-to-list 'new-global-map
-                       (make-char-table 'display-table
-                                        'self-insert-command) t)
-          (use-global-map new-global-map)
-          (setq char (aref (read-key-sequence prompt nil t) 0))
-          (if (memq char '(?\C-q ?\C-v))
-              (read-quoted-char)
-            (unless (eq char ?\e)
-              (or (cdr (assq char '((?\r . ?\n))))
-                  char))))
+        (condition-case nil
+            (progn
+              (define-key new-global-map [menu-bar]
+                (lookup-key global-map [menu-bar]))
+              (define-key new-global-map [tool-bar]
+                (lookup-key global-map [tool-bar]))
+              (add-to-list 'new-global-map
+                           (make-char-table 'display-table
+                                            'self-insert-command) t)
+              (use-global-map new-global-map)
+              (setq seq (read-key-sequence prompt nil t)
+                    char (aref seq 0)
+                    cmd (key-binding seq))
+              (while (arrayp cmd)
+                (setq char (aref cmd 0)
+                      cmd (key-binding cmd)))
+              (cond
+               ((eq cmd 'self-insert-command)
+                char)
+               (cmd
+                (call-interactively cmd))
+               (t
+                (error "No replacement character typed"))))
+          (quit
+           (when (fboundp 'evil-repeat-abort)
+             (evil-repeat-abort))
+           (signal 'quit nil)))
       (use-global-map old-global-map))))
+
+(defun evil-read-quoted-char ()
+  "Command that calls `read-quoted-char'.
+This command can be used wherever `read-quoted-char' is required
+as a command. Its main use is in the `evil-read-key-map'."
+  (interactive)
+  (read-quoted-char))
 
 (defun evil-read-motion (&optional motion count type modifier)
   "Read a MOTION, motion COUNT and motion TYPE from the keyboard.
@@ -830,12 +849,29 @@ See also `evil-save-goal-column'."
        ,@body
        (move-to-column col))))
 
+(defun evil-narrow (beg end)
+  "Restrict the buffer to BEG and END.
+BEG or END may be nil, specifying a one-sided restriction including
+`point-min' or `point-max'. See also `evil-with-restriction.'"
+  (setq beg (or (evil-normalize-position beg) (point-min)))
+  (setq end (or (evil-normalize-position end) (point-max)))
+  (narrow-to-region beg end))
+
+(defmacro evil-with-restriction (beg end &rest body)
+  "Execute BODY with the buffer narrowed to BEG and END.
+BEG or END may be nil as passed to `evil-narrow'; this creates
+a one-sided restriction."
+  (declare (indent 2)
+           (debug t))
+  `(save-restriction
+     (evil-narrow ,beg ,end)
+     ,@body))
+
 (defmacro evil-narrow-to-field (&rest body)
   "Narrow to the current field."
   (declare (indent defun)
            (debug t))
-  `(save-restriction
-     (narrow-to-region (field-beginning) (field-end))
+  `(evil-with-restriction (field-beginning) (field-end)
      ,@body))
 
 (defun evil-move-beginning-of-line (&optional arg)
@@ -857,16 +893,37 @@ Like `move-end-of-line', but retains the goal column."
 If at the end of the buffer, move point to the previous line.
 This behavior is contingent on the variable `evil-move-cursor-back';
 use the FORCE parameter to override it."
-  (evil-narrow-to-field
-    (cond
-     ((and (eobp) (bolp))
+  (cond
+   ((and (eobp) (bolp))
+    (evil-with-restriction
+        (field-beginning nil nil (line-beginning-position -1)) nil
       (forward-line -1)
-      (back-to-indentation))
-     ((= (point)
-         (save-excursion
-           (evil-move-end-of-line)
-           (point)))
-      (evil-move-cursor-back force)))))
+      (back-to-indentation)
+      (setq temporary-goal-column (current-column))))
+   ((and (eolp)
+         (not (bolp))
+         (= (point)
+            (save-excursion
+              (evil-move-end-of-line)
+              (point))))
+    (evil-move-cursor-back force))))
+
+(defmacro evil-with-adjust-cursor (&rest body)
+  "Executes the (motion) BODY while excluding a final buffer newline.
+If the buffer ends in a newline, the buffer is narrowed to (1-
+point-max) during the execution of body. If (point) is currently
+at eob, then no narrowing takes place because this would
+invalidate the current position."
+  (declare (indent defun)
+           (debug t))
+  `(save-restriction
+     (when (and (not (evil-operator-state-p))
+                (not (eobp))
+                (save-excursion
+                  (goto-char (point-max))
+                  (bolp)))
+       (evil-narrow nil (1- (point-max))))
+     ,@body))
 
 (defun evil-move-cursor-back (&optional force)
   "Move point one character back within the current line.
@@ -874,7 +931,12 @@ Contingent on the variable `evil-move-cursor-back' or the FORCE
 argument. Honors field boundaries, i.e., constrains the movement
 to the current field as recognized by `line-beginning-position'."
   (when (or evil-move-cursor-back force)
-    (unless (= (point) (line-beginning-position))
+    (unless (or (= (point) (line-beginning-position))
+                (and (boundp 'visual-line-mode)
+                     visual-line-mode
+                     (= (point) (save-excursion
+                                  (beginning-of-visual-line)
+                                  (point)))))
       (backward-char))))
 
 (defun evil-line-position (line &optional column)
@@ -1006,26 +1068,33 @@ See also `evil-goto-min'."
 ;; further, those motions move point to the beginning resp. the end of
 ;; the line (we never want point to leave its column). The code here
 ;; comes from simple.el, and I hope it will work in future.
-(defun evil-line-move (count)
-  "A wrapper for line motions which conserves the column."
-  (evil-signal-without-movement
-    (setq this-command #'next-line)
-    (let ((opoint (point)))
-      (condition-case err
-          (with-no-warnings
-            (if (>= count 0)
-                (next-line count)
-              (previous-line (- count))))
-        ((beginning-of-buffer end-of-buffer)
-         (let ((col (or goal-column
-                        (if (consp temporary-goal-column)
-                            (car temporary-goal-column)
-                          temporary-goal-column))))
-           (if line-move-visual
-               (vertical-motion (cons col 0))
-             (line-move-finish col opoint (< count 0)))
-           ;; Maybe we should just `ding'?
-           (signal (car err) (cdr err))))))))
+(defun evil-line-move (count &optional noerror)
+  "A wrapper for line motions which conserves the column.
+Signals an error at buffer boundaries unless NOERROR is non-nil."
+  (cond
+   (noerror
+    (condition-case nil
+        (evil-line-move count)
+      (error nil)))
+   (t
+    (evil-signal-without-movement
+      (setq this-command (if (>= count 0)
+                             #'next-line
+                           #'previous-line))
+      (let ((opoint (point)))
+        (condition-case err
+            (with-no-warnings
+              (funcall this-command (abs count)))
+          ((beginning-of-buffer end-of-buffer)
+           (let ((col (or goal-column
+                          (if (consp temporary-goal-column)
+                              (car temporary-goal-column)
+                            temporary-goal-column))))
+             (if line-move-visual
+                 (vertical-motion (cons col 0))
+               (line-move-finish col opoint (< count 0)))
+             ;; Maybe we should just `ding'?
+             (signal (car err) (cdr err))))))))))
 
 (defun evil-move-chars (chars count)
   "Move point to the end or beginning of a sequence of CHARS.
@@ -1224,7 +1293,7 @@ Otherwise, execute BODY again, but without the restriction."
 with regard to indentation."
   (evil-narrow-to-field
     (evil-move-beginning-of-line)
-    (newline)
+    (insert "\n")
     (forward-line -1)
     (back-to-indentation)))
 
@@ -1233,7 +1302,7 @@ with regard to indentation."
 with regard to indentation."
   (evil-narrow-to-field
     (evil-move-end-of-line)
-    (newline)
+    (insert "\n")
     (back-to-indentation)))
 
 ;;; Markers
@@ -1342,12 +1411,15 @@ Signal an error if empty, unless NOERROR is non-nil."
           (let ((x-select-enable-clipboard t))
             (current-kill 0)))
          (t
+          (setq register (downcase register))
           (get-register register)))
         (unless noerror
           (error "Register `%c' is empty" register)))))
 
 (defun evil-set-register (register text)
-  "Set the contents of register REGISTER to TEXT."
+  "Set the contents of register REGISTER to TEXT.
+If REGISTER is an upcase character then text is appended to that
+register instead of replacing its content."
   (cond
    ((eq register ?\")
     (kill-new text))
@@ -1365,6 +1437,11 @@ Signal an error if empty, unless NOERROR is non-nil."
    ((eq register ?+)
     (let ((x-select-enable-clipboard t))
       (kill-new text)))
+   ((and (<= ?A register) (<= register ?Z))
+    (setq register (downcase register))
+    (set-register register
+                  (concat (get-register register)
+                          text)))
    (t
     (set-register register text))))
 
@@ -1387,10 +1464,13 @@ If POS is nil, delete the mark."
   (set-marker (mark-marker) pos))
 
 (defun evil-save-transient-mark-mode ()
-  "Save Transient Mark mode and make the new setup buffer-local.
-The variables to save are listed in `evil-transient-vars'.
-Their values are stored in `evil-transient-vals'.
-See also `evil-restore-transient-mark-mode'."
+  "Save Transient Mark mode and make it buffer-local.
+Any changes to Transient Mark mode are now local to the current
+buffer, until `evil-restore-transient-mark-mode' is called.
+
+Variables pertaining to Transient Mark mode are listed in
+`evil-transient-vars', and their values are stored in
+`evil-transient-vals'."
   (dolist (var evil-transient-vars)
     (when (and (boundp var)
                (not (assq var evil-transient-vals)))
@@ -1401,8 +1481,15 @@ See also `evil-restore-transient-mark-mode'."
       (put var 'permanent-local t))))
 
 (defun evil-restore-transient-mark-mode ()
-  "Restore Transient Mark mode from `evil-transient-vals'.
-See also `evil-save-transient-mark-mode'."
+  "Restore Transient Mark mode.
+This presupposes that `evil-save-transient-mark-mode' has been
+called earlier. If Transient Mark mode was disabled before but
+enabled in the meantime, this function disables it; if it was
+enabled before but disabled in the meantime, this function
+enables it.
+
+The earlier settings of Transient Mark mode are stored in
+`evil-transient-vals'."
   (let (entry local var val)
     (while (setq entry (pop evil-transient-vals))
       (setq var (pop entry)
@@ -1418,14 +1505,17 @@ See also `evil-save-transient-mark-mode'."
 (defun evil-save-mark ()
   "Save the current mark, including whether it is transient.
 See also `evil-restore-mark'."
-  (setq evil-visual-previous-mark (mark t))
-  (evil-save-transient-mark-mode))
+  (unless evil-visual-previous-mark
+    (setq evil-visual-previous-mark (mark t))
+    (evil-save-transient-mark-mode)))
 
 (defun evil-restore-mark ()
   "Restore the mark, including whether it was transient.
 See also `evil-save-mark'."
-  (evil-restore-transient-mark-mode)
-  (evil-move-mark evil-visual-previous-mark))
+  (when evil-visual-previous-mark
+    (evil-restore-transient-mark-mode)
+    (evil-move-mark evil-visual-previous-mark)
+    (setq evil-visual-previous-mark nil)))
 
 ;; In theory, an active region implies Transient Mark mode, and
 ;; disabling Transient Mark mode implies deactivating the region.
@@ -1491,6 +1581,19 @@ Then restore Transient Mark mode to its previous setting."
            ,@body)
        (evil-restore-transient-mark-mode))))
 
+(defmacro evil-with-active-region (beg end &rest body)
+  "Execute BODY with an active region from BEG to END."
+  (declare (indent 2)
+           (debug t))
+  `(let ((beg ,beg) (end ,end)
+         evil-transient-vals)
+     (evil-with-transient-mark-mode
+       (save-excursion
+         (evil-active-region 1)
+         (evil-move-mark beg)
+         (goto-char end)
+         ,@body))))
+
 (defun evil-exchange-point-and-mark ()
   "Exchange point and mark without activating the region."
   (let* ((point (point))
@@ -1503,7 +1606,11 @@ Then restore Transient Mark mode to its previous setting."
 The selection may be specified explicitly with BEG and END.
 FUNC must take at least two arguments, the beginning and end of
 each line. Extra arguments to FUNC may be passed via ARGS."
-  (let (beg-marker end-marker left right eob)
+  (let ((eol-col (and (memq last-command '(next-line previous-line))
+                      (numberp temporary-goal-column)
+                      (= temporary-goal-column most-positive-fixnum)
+                      temporary-goal-column))
+        beg-marker end-marker left right eob)
     (save-excursion
       (evil-sort beg end)
       ;; calculate columns
@@ -1532,7 +1639,7 @@ each line. Extra arguments to FUNC may be passed via ARGS."
                         (move-to-column left t)
                         (point))
                       (save-excursion
-                        (move-to-column right t)
+                        (move-to-column (or eol-col right))
                         (point))
                       args)
                (forward-line 1)
@@ -1542,11 +1649,48 @@ each line. Extra arguments to FUNC may be passed via ARGS."
       (set-marker beg-marker nil)
       (set-marker end-marker nil))))
 
+(defun evil-apply-on-rectangle (function start end &rest args)
+  "Like `apply-on-rectangle' but maybe extends to eol.
+If `temporary-goal-column' is set to a big number, then the
+region of each line is extended to the end of each line. The end
+column is set to the maximal column in all covered lines."
+  (let ((eol-col (and (memq last-command '(next-line previous-line))
+                      (numberp temporary-goal-column)
+                      temporary-goal-column))
+        startcol startpt endcol endpt)
+    (save-excursion
+      (goto-char start)
+      (setq startcol (current-column))
+      (beginning-of-line)
+      (setq startpt (point))
+      (goto-char end)
+      (setq endcol (current-column))
+      (forward-line 1)
+      (setq endpt (point-marker))
+      ;; ensure the start column is the left one.
+      (if (< endcol startcol)
+          (let ((col startcol))
+            (setq startcol endcol endcol col)))
+      ;; maybe find maximal column
+      (when eol-col
+        (setq eol-col 0)
+        (goto-char startpt)
+        (while (< (point) endpt)
+          (setq eol-col (max eol-col
+                             (evil-column (line-end-position))))
+          (forward-line 1))
+        (setq endcol (min eol-col temporary-goal-column)))
+      ;; start looping over lines
+      (goto-char startpt)
+      (while (< (point) endpt)
+        (apply function startcol endcol args)
+        (forward-line 1)))))
+
 ;;; Paste
 
 (defun evil-yank-characters (beg end &optional register yank-handler)
   "Saves the characters defined by the region BEG and END in the kill-ring."
-  (let ((text (buffer-substring beg end)))
+  (let ((text (filter-buffer-substring beg end)))
     (when yank-handler
       (setq text (propertize text 'yank-handler (list yank-handler))))
     (when register
@@ -1555,7 +1699,7 @@ each line. Extra arguments to FUNC may be passed via ARGS."
 
 (defun evil-yank-lines (beg end &optional register yank-handler)
   "Saves the lines in the region BEG and END into the kill-ring."
-  (let* ((text (buffer-substring beg end))
+  (let* ((text (filter-buffer-substring beg end))
          (yank-handler (list (or yank-handler
                                  #'evil-yank-line-handler))))
     ;; Ensure the text ends with a newline. This is required
@@ -1571,7 +1715,7 @@ each line. Extra arguments to FUNC may be passed via ARGS."
 (defun evil-yank-rectangle (beg end &optional register yank-handler)
   "Stores the rectangle defined by region BEG and END into the kill-ring."
   (let ((lines (list nil)))
-    (apply-on-rectangle #'extract-rectangle-line beg end lines)
+    (evil-apply-on-rectangle #'extract-rectangle-line beg end lines)
     ;; We remove spaces from the beginning and the end of the next.
     ;; Spaces are inserted explicitly in the yank-handler in order to
     ;; NOT insert lines full of spaces.
@@ -1596,20 +1740,7 @@ each line. Extra arguments to FUNC may be passed via ARGS."
     (remove-list-of-text-properties
      0 (length text) yank-excluded-properties text)
     (cond
-     ((eq this-command #'evil-paste-after)
-      (evil-move-end-of-line)
-      (evil-move-mark (point))
-      (newline)
-      (insert text)
-      (delete-char -1) ; delete the last newline
-      (setq evil-last-paste
-            (list #'evil-paste-after
-                  evil-paste-count
-                  opoint
-                  (mark t)
-                  (point)))
-      (evil-move-mark (1+ (mark t))))
-     (t
+     ((eq this-command #'evil-paste-before)
       (evil-move-beginning-of-line)
       (evil-move-mark (point))
       (insert text)
@@ -1618,9 +1749,30 @@ each line. Extra arguments to FUNC may be passed via ARGS."
                   evil-paste-count
                   opoint
                   (mark t)
-                  (point)))))
-    (evil-exchange-point-and-mark)
-    (back-to-indentation)))
+                  (point)))
+      (evil-set-marker ?\[ (mark))
+      (evil-set-marker ?\] (1- (point)))
+      (evil-exchange-point-and-mark)
+      (back-to-indentation))
+     ((eq this-command #'evil-paste-after)
+      (evil-move-end-of-line)
+      (evil-move-mark (point))
+      (insert "\n")
+      (insert text)
+      (evil-set-marker ?\[ (1+ (mark)))
+      (evil-set-marker ?\] (1- (point)))
+      (delete-char -1) ; delete the last newline
+      (setq evil-last-paste
+            (list #'evil-paste-after
+                  evil-paste-count
+                  opoint
+                  (mark t)
+                  (point)))
+      (evil-move-mark (1+ (mark t)))
+      (evil-exchange-point-and-mark)
+      (back-to-indentation))
+     (t
+      (insert text)))))
 
 (defun evil-yank-block-handler (lines)
   "Inserts the current text as block."
@@ -1629,7 +1781,8 @@ each line. Extra arguments to FUNC may be passed via ARGS."
                  (1+ (current-column))
                (current-column)))
         (current-line (line-number-at-pos (point)))
-        (opoint (point)))
+        (opoint (point))
+        epoint)
     (dolist (line lines)
       ;; concat multiple copies according to count
       (setq line (apply #'concat (make-list count line)))
@@ -1642,7 +1795,7 @@ each line. Extra arguments to FUNC may be passed via ARGS."
         (while (< (line-number-at-pos (point))
                   current-line)
           (goto-char (point-max))
-          (newline))
+          (insert "\n"))
         (setq current-line (1+ current-line))
         ;; insert text unless we insert an empty line behind eol
         (unless (and (< (evil-column (line-end-position)) col)
@@ -1657,7 +1810,8 @@ each line. Extra arguments to FUNC may be passed via ARGS."
           (insert text)
           (unless (eolp)
             ;; text follows, so we have to insert spaces
-            (insert (make-string endextra ? ))))
+            (insert (make-string endextra ? )))
+          (setq epoint (point)))
         (forward-line 1)))
     (setq evil-last-paste
           (list this-command
@@ -1665,6 +1819,8 @@ each line. Extra arguments to FUNC may be passed via ARGS."
                 opoint
                 (length lines)                   ; number of rows
                 (* count (length (car lines))))) ; number of colums
+    (evil-set-marker ?\[ opoint)
+    (evil-set-marker ?\] (1- epoint))
     (goto-char opoint)
     (when (and (eq this-command #'evil-paste-after)
                (not (eolp)))
@@ -2107,7 +2263,7 @@ Returns t if RANGE was successfully adjusted and nil otherwise."
         (evil-set-range range nil (line-end-position 0)))
       (not (evil-subrange-p orig range)))))
 
-(defun evil-inner-object-range (count forward &optional backward type)
+(defun evil-inner-object-range (count beg end type forward &optional backward range-type)
   "Return an inner text object range (BEG END) of COUNT objects.
 If COUNT is positive, return objects following point;
 if COUNT is negative, return objects preceding point.
@@ -2123,38 +2279,117 @@ If one is unspecified, the other is used with a negative argument."
          (backward (or backward
                        #'(lambda (count)
                            (funcall forward-func (- count)))))
-         beg end)
-    (when (< count 0)
+         (current
+          #'(lambda ()
+              (save-excursion
+                (let ((pnt (point))
+                      beg-obj end-obj)
+                  (funcall forward 1)
+                  (setq end-obj (point))
+                  (funcall backward 1)
+                  (setq beg-obj (point))
+                  (cond
+                   ((<= beg-obj pnt)
+                    (cons beg-obj end-obj))
+                   ((zerop (funcall backward 1))
+                    (funcall forward 1)
+                    (cons (if (and (eolp) (not (bolp)))
+                              (1+ (point))
+                            (point))
+                          beg-obj))
+                   (t
+                    (cons (point-min) beg-obj))))))))
+
+    (save-excursion
+      (cond
+       ((> count 0)
+        (let ((obj (funcall current)))
+          (if (or (not beg) (not end)
+                  (> beg (car obj))
+                  (< end (cdr obj)))
+              ;; current object not yet selected
+              (progn
+                (when (or (not beg) (< (car obj) beg))
+                  (setq beg (car obj)))
+                (when (or (not end) (> (cdr obj) end))
+                  (setq end (cdr obj)))
+                (setq count (1- count))
+                (goto-char end))
+            (goto-char (cdr obj))))
+        (dotimes(i count)
+          (let ((obj (funcall current)))
+            (goto-char (cdr obj))))
+        (evil-range beg (point) range-type))
+       (t
+        (setq count (- count))
+        (let ((obj (funcall current)))
+          (if (or (not beg) (not end)
+                  (> beg (car obj))
+                  (< end (cdr obj)))
+              ;; current object not yet selected
+              (progn
+                (when (or (not beg) (< (car obj) beg))
+                  (setq beg (car obj)))
+                (when (or (not end) (> (cdr obj) end))
+                  (setq end (cdr obj)))
+                (setq count (1- count))
+                (goto-char beg))
+            (goto-char (car obj))))
+        (dotimes(i count)
+          (backward-char 1)
+          (let ((obj (funcall current)))
+            (goto-char (car obj))))
+        (evil-range (point) end range-type))))))
+
+(defun evil-an-object-range (count beg end type forward &optional backward range-type newlines)
+  "Return a text object range of COUNT objects with whitespace.
+BEG, END and TYPE specify the range of the current selection that
+should be extended.  The function returns a list (B E) specifying
+the new (extended) text object range.  See
+`evil-inner-object-range' for more details."
+  (let* ((count (or count 1))
+         (forward-func forward)
+         (backward-func backward)
+         (forward  (or forward
+                       #'(lambda (count)
+                           (funcall backward-func (- count)))))
+         (backward (or backward
+                       #'(lambda (count)
+                           (funcall forward-func (- count))))))
+    (if (> count 0)
+        ;; ensure we select the next object
+        (when (and beg end) (forward-char 1))
+      ;; going backward
       (evil-swap forward backward)
       (setq count (abs count)))
-    (setq beg (save-excursion
-                (funcall forward 1)
-                (funcall backward 1)
-                (point))
-          end (save-excursion
-                (funcall forward count)
-                (point)))
-    (evil-range beg end type)))
+    (let ((range
+           (evil-range (save-excursion
+                         (funcall forward 1)
+                         (funcall backward 1)
+                         (point))
+                       (save-excursion
+                         (funcall forward count)
+                         (point))
+                       range-type)))
+      (setq range
+            (save-excursion
+              (if newlines
+                  (evil-add-whitespace-to-range range count)
+                (evil-with-restriction
+                    (save-excursion
+                      (goto-char (evil-range-beginning range))
+                      (line-beginning-position))
+                    (save-excursion
+                      (goto-char (evil-range-end range))
+                      (line-end-position))
+                  (evil-add-whitespace-to-range range count)))))
+      (if (and beg end)
+          (evil-range-union range (evil-range beg end))
+        range))))
 
-(defun evil-an-object-range (count forward &optional backward type newlines)
-  "Return a text object range (BEG END) of COUNT objects with whitespace.
-See `evil-inner-object-range' for more details."
-  (let ((range (evil-inner-object-range count forward backward type)))
-    (save-excursion
-      (save-restriction
-        (if newlines
-            (evil-add-whitespace-to-range range count)
-          (narrow-to-region
-           (save-excursion
-             (goto-char (evil-range-beginning range))
-             (line-beginning-position))
-           (save-excursion
-             (goto-char (evil-range-end range))
-             (line-end-position)))
-          (evil-add-whitespace-to-range range count))))))
-
-(defun evil-paren-range (count open close &optional exclusive)
+(defun evil-paren-range (count beg end type open close &optional exclusive)
   "Return a range (BEG END) of COUNT delimited text objects.
+BEG, END and TYPE are the currently selected (visual) range.
 OPEN is an opening character and CLOSE is a closing character.
 If EXCLUSIVE is non-nil, OPEN and CLOSE are excluded from
 the range; otherwise they are included.
@@ -2165,16 +2400,27 @@ use `evil-regexp-range'."
   (let ((open-regexp (regexp-quote (string open)))
         (close-regexp (regexp-quote (string close)))
         (count (or count 1))
-        level beg end range)
+        level range)
     (save-excursion
-      (if (or (evil-in-comment-p) (evil-in-string-p))
+      (if (or (evil-in-comment-p)
+              (and (evil-in-string-p)
+                   ;; TODO: this checks whether the current closing
+                   ;; quote is indeed the end of a string. This is
+                   ;; only a quick fix and should be done more
+                   ;; carefully!
+                   (or (/= (char-after) close)
+                       (eobp)
+                       (evil-in-string-p (1+ (point))))))
           ;; if in a comment, first look inside the comment only;
           ;; failing that, look outside it
-          (or (evil-regexp-range count open-regexp close-regexp exclusive)
+          (or (evil-regexp-range count
+                                 beg end type
+                                 open-regexp close-regexp
+                                 exclusive)
               (progn
                 (evil-goto-min (evil-string-beginning)
                                (evil-comment-beginning))
-                (evil-paren-range count open close exclusive)))
+                (evil-paren-range count beg end type open close exclusive)))
         (with-syntax-table (copy-syntax-table (syntax-table))
           (cond
            ((= count 0))
@@ -2195,13 +2441,39 @@ use `evil-regexp-range'."
             ;; otherwise handle as open and close parentheses
             (modify-syntax-entry open (format "(%c" close))
             (modify-syntax-entry close (format ")%c" open))
-            ;; Is point next to a parenthesis?
             (if (< count 0)
                 (when (looking-back close-regexp)
                   (backward-char))
               (when (looking-at open-regexp)
-                (forward-char)))
-            ;; find OPEN
+                (forward-char)
+                (when (and beg end (= (1+ beg) end))
+                  (setq beg (1+ beg)))))
+            ;; find OPEN, start at beginning of current range (if any)
+            (when (and beg end)
+              (goto-char (min beg (point)))
+              ;; check if current object matches current selection
+              (condition-case nil
+                  (save-excursion
+                    ;; find OPEN of current object
+                    (while (progn
+                             (backward-up-list 1)
+                             (not (looking-at open-regexp))))
+                    (let ((beg1 (point)))
+                      ;; find CLOSE of current object
+                      (forward-list)
+                      ;; modify current object of inclusive range
+                      (when exclusive
+                        (setq beg1 (1+ beg1))
+                        (backward-char))
+                      (when (and (= beg1 beg)
+                                 (= (point) end))
+                        ;; current object *is* current selection,
+                        ;; select one more
+                        (if (> count 0)
+                            (setq count (1+ count))
+                          (setq count (1- count))))))
+                (error nil)))
+            ;; find OPEN again with correct count
             (evil-motion-loop (nil count level)
               (condition-case nil
                   (while (progn
@@ -2211,7 +2483,7 @@ use `evil-regexp-range'."
             (when (/= level count)
               (setq beg (if exclusive (1+ (point)) (point)))
               ;; find CLOSE
-              (forward-sexp)
+              (forward-list)
               (setq end (if exclusive (1- (point)) (point)))
               (setq range (evil-range beg end))
               (when exclusive
@@ -2219,67 +2491,107 @@ use `evil-regexp-range'."
                  range (not (eq evil-this-operator #'evil-delete)))))))
           range)))))
 
-;; This simpler, but more general function can be used when
-;; `evil-paren-range' is insufficient. Note that as it doesn't use
-;; the syntax table, it is unaware of escaped characters (unless
-;; such a check is built into the regular expressions).
-(defun evil-regexp-range (count open close &optional exclusive)
+(defun evil-quote-range (count beg end type open close &optional exclusive)
+  "Return a range (BEG END) of COUNT quotes.
+BEG, END and TYPE are the currently selected (visual) range.
+OPEN is the opening quote, CLOSE is the closing quote (often both
+are equal). If EXCLUSIVE is non-nil, OPEN and CLOSE are excluded
+from the range unless COUNT is 2 in which case they are included;
+otherwise they are included as well as any succeeding (or
+preceding if no whitespace follows) white space."
+  (if exclusive
+      (if (and count (= count 2))
+          (evil-paren-range 1 nil nil nil open close nil)
+        (evil-paren-range count nil nil nil open close t))
+    (let ((range (evil-paren-range count nil nil nil open close nil)))
+      (save-excursion
+        (if (progn
+              (goto-char (evil-range-end range))
+              (looking-at "[[:space:]]+"))
+            (evil-range (evil-range-beginning range) (match-end 0))
+          (goto-char (evil-range-beginning range))
+          (skip-chars-backward "[:space:]")
+          (evil-range (point) (evil-range-end range)))))))
+
+(defun evil-regexp-range (count beg end type open close &optional exclusive)
   "Return a range (BEG END) of COUNT delimited text objects.
+BEG END TYPE are the currently selected (visual) range.
 OPEN is a regular expression matching the opening sequence,
 and CLOSE is a regular expression matching the closing sequence.
 If EXCLUSIVE is non-nil, OPEN and CLOSE are excluded from
 the range; otherwise they are included. See also `evil-paren-range'."
-  (evil-with-or-without-comment
-    (let ((either (format "\\(%s\\)\\|\\(%s\\)" open close))
-          (count (or count 1))
-          (level 0)
-          beg end range)
-      (save-excursion
-        (save-match-data
-          ;; Is point inside a delimiter?
-          (when (evil-in-regexp-p either)
-            (if (< count 0)
-                (goto-char (match-end 0))
-              (goto-char (match-beginning 0))))
-          ;; Is point next to a delimiter?
-          (if (< count 0)
-              (when (looking-back close)
-                (goto-char (match-beginning 0)))
-            (when (looking-at open)
-              (goto-char (match-end 0))))
-          ;; find beginning of range
-          (while (and (< level (abs count))
-                      (re-search-backward either nil t))
-            (if (looking-at open)
-                (setq level (1+ level))
-              ;; found a CLOSE, so need to find another OPEN first
-              (setq level (1- level))))
-          ;; find end of range
-          (when (> level 0)
-            (forward-char)
-            (setq level 1
-                  beg (if exclusive
-                          (match-end 0)
-                        (match-beginning 0)))
-            (while (and (> level 0)
-                        (re-search-forward either nil t))
-              (if (looking-back close)
-                  (setq level (1- level))
-                ;; found an OPEN, so need to find another CLOSE first
-                (setq level (1+ level))))
-            (when (= level 0)
-              (setq end (if exclusive
-                            (match-beginning 0)
-                          (match-end 0)))
-              (setq range (evil-range beg end))))
-          range)))))
+  (let ((either (format "\\(%s\\)\\|\\(%s\\)" open close))
+        (count (or count 1))
+        (level 0))
+    (let ((select
+           #'(lambda (count)
+               ;; Is point inside a delimiter?
+               (evil-with-or-without-comment
+                 (save-excursion
+                   (save-match-data
+                     (let ((level 0)
+                           beg-inc end-inc beg-exc end-exc)
+                       (when (evil-in-regexp-p either)
+                         (if (< count 0)
+                             (goto-char (match-end 0))
+                           (goto-char (match-beginning 0))))
+                       ;; Is point next to a delimiter?
+                       (if (< count 0)
+                           (when (looking-back close)
+                             (goto-char (match-beginning 0)))
+                         (when (looking-at open)
+                           (goto-char (match-end 0))))
+                       ;; find beginning of range
+                       (while (and (< level (abs count))
+                                   (re-search-backward either nil t))
+                         (if (looking-at open)
+                             (setq level (1+ level))
+                           ;; found a CLOSE, so need to find another
+                           ;; OPEN first
+                           (setq level (1- level))))
+                       ;; find end of range
+                       (when (> level 0)
+                         (forward-char)
+                         (setq level 1
+                               beg-inc (match-beginning 0)
+                               beg-exc (match-end 0))
+                         (while (and (> level 0)
+                                     (re-search-forward either nil t))
+                           (if (looking-back close)
+                               (setq level (1- level))
+                             ;; found an OPEN, so need to find another
+                             ;; CLOSE first
+                             (setq level (1+ level))))
+                         (when (= level 0)
+                           (setq end-inc (match-end 0)
+                                 end-exc (match-beginning 0))
+                           (cons (evil-range beg-inc end-inc)
+                                 (evil-range beg-exc end-exc)))))))))))
+      (when (and beg end)
+        (let* ((ranges1 (funcall select (if (> count 0) 1 -1)))
+               (rng-inc1 (car ranges1))
+               (rng-exc1 (cdr ranges1)))
+          (cond
+           ((and (= beg (evil-range-beginning rng-inc1))
+                 (= end (evil-range-end rng-inc1)))
+            (setq count (+ count (if (> count 0) 1 -1))))
+           ((and exclusive
+                 (= beg (evil-range-beginning rng-exc1))
+                 (= end (evil-range-end rng-exc1)))
+            (if (= (abs count) 1)
+                (setq exclusive nil)
+              (setq count (+ count (if (> count 0) 1 -1))))))))
+      (let ((ranges (funcall select count)))
+        (if exclusive (cdr ranges) (car ranges))))))
 
-(defun evil-xml-range (&optional count exclusive)
+(defun evil-xml-range (&optional count beg end type exclusive)
   "Return a range (BEG END) of COUNT matching XML tags.
 If EXCLUSIVE is non-nil, the tags themselves are excluded
 from the range."
   (evil-regexp-range
-   count "<\\(?:[^/ ]\\(?:[^>]*?[^/>]\\)?\\)?>" "</[^>]+?>" exclusive))
+   count beg end type
+   "<\\(?:[^/ ]\\(?:[^>]*?[^/>]\\)?\\)?>" "</[^>]+?>"
+   exclusive))
 
 (defun evil-expand-range (range &optional copy)
   "Expand RANGE according to its type.
@@ -2363,7 +2675,7 @@ is stored in `evil-temporary-undo' instead of `buffer-undo-list'."
      (unless (eq buffer-undo-list t)
        ;; undo is enabled, so update the global buffer undo list
        (setq buffer-undo-list
-             ;; prepend new undos (if there are some)
+             ;; prepend new undos (if there are any)
              (if (cdr evil-temporary-undo)
                  (nconc evil-temporary-undo buffer-undo-list)
                buffer-undo-list)
@@ -2403,6 +2715,39 @@ in `evil-temporary-undo' instead."
           (setq evil-temporary-undo nil)
         (setq buffer-undo-list undo-list)))))
 
+;;; Search
+(defun evil-transform-regexp (regexp replacements-alist)
+  (let ((pos 0) result)
+    (replace-regexp-in-string
+     "\\\\+[^\\\\]"
+     #'(lambda (txt)
+         (let* ((b (match-beginning 0))
+                (e (match-end 0))
+                (ch (aref txt (1- e)))
+                (repl (assoc ch replacements-alist)))
+           (if (and repl (zerop (mod (length txt) 2)))
+               (concat (substring txt b (- e 2))
+                       (cdr repl))
+             txt)))
+     regexp nil t)))
+
+(defun evil-transform-vim-style-regexp (regexp)
+  "Transforms vim-style backslash codes to Emacs regexp.
+This includes the backslash codes \\d, \\D, \\s, \\S, \\x, \\X,
+\\o, \\O, \\a, \\A, \\l, \\L, \\u, \\U and \\w, \\W. The new
+codes \\y and \\Y can be used instead of the Emacs code \\s and
+\\S which have a different meaning in Vim-style."
+  (evil-transform-regexp
+   regexp
+   '((?s . "[[:space:]]") (?S . "[^[:space:]]")
+     (?d . "[[:digit:]]")  (?D . "[^[:digit:]]")
+     (?x . "[[:xdigit:]]") (?X . "[^[:xdigit:]]")
+     (?o . "[0-7]")        (?O . "[^0-7]")
+     (?a . "[[:alpha:]]")  (?A . "[^[:alpha:]]")
+     (?l . "[a-z]")        (?L . "[^a-z]")
+     (?u . "[A-Z]")        (?U . "[^A-Z]")
+     (?y . "\\s")          (?Y . "\\S"))))
+
 ;;; Substitute
 
 (defun evil-downcase-first (str)
@@ -2419,64 +2764,65 @@ in `evil-temporary-undo' instead."
     (concat (upcase (substring str 0 1))
             (substring str 1))))
 
-(defun evil-compile-subreplacement (to)
-  "Maybe convert a regexp replacement TO to Lisp from START until \e or \E.
-Returns a pair (result . rest).  RESULT is a list suitable for
-`perform-replace' if necessary, the original string if not and
-REST is the unparsed rest of TO."
-  (if (string-match "\\(\\`\\|[^\\]\\)\\(\\\\\\\\\\)*\\\\[^0-9&]" to)
-      (let (pos list char (rest ""))
-        (while
-            (progn
-              (setq pos (match-end 0))
-              (push (substring to 0 (- pos 2)) list)
-              (setq char (aref to (1- pos))
-                    to (substring to pos))
-              (cond ((eq char ?\#)
-                     (push '(number-to-string replace-count) list))
-                    ((eq char ?n) (push "\n" list))
-                    ((eq char ?t) (push "\t" list))
-                    ((eq char ?r) (push "\r" list))
-                    ((memq char '(?e ?E))
-                     (setq rest to to ""))
-                    ((memq char '(?l ?L ?u ?U))
-                     (let ((func (cdr (assoc char '((?l . evil-downcase-first)
-                                                    (?L . downcase)
-                                                    (?u . evil-upcase-first)
-                                                    (?U . upcase))))))
-                       (let ((result (evil-compile-subreplacement to)))
-                         (push `(,func
-                                 (replace-quote
-                                  (evil-match-substitute-replacement
-                                   ,(car result) t)))
-                               list)
-                         (setq to (cdr result)))))
-                    ((eq char ?\,)
-                     (setq pos (read-from-string to))
-                     (push `(replace-quote ,(car pos)) list)
-                     (let ((end
-                            ;; Swallow a space after a symbol
-                            ;; if there is a space.
-                            (if (and (or (symbolp (car pos))
-                                         ;; Swallow a space after 'foo
-                                         ;; but not after (quote foo).
-                                         (and (eq (car-safe (car pos)) 'quote)
-                                              (not (= ?\( (aref to 0)))))
-                                     (eq (string-match " " to (cdr pos))
-                                         (cdr pos)))
-                                (1+ (cdr pos))
-                              (cdr pos))))
-                       (setq to (substring to end))))
-                    (t ; simple escaped character
-                     (push (char-to-string char) list)))
-              (string-match "\\(\\`\\|[^\\]\\)\\(\\\\\\\\\\)*\\\\[^0-9&]" to)))
+(defun evil-compile-subreplacement (to &optional start)
+  "Convert a regexp replacement TO to Lisp from START until \\e or \\E.
+Returns a pair (RESULT . REST). RESULT is a list suitable for
+`perform-replace' if necessary, the original string if not.
+REST is the unparsed remainder of TO."
+  (let ((regexp "\\(\\`\\|[^\\]\\)\\(\\\\\\\\\\)*\\\\[^0-9&]")
+        (rest "") char list)
+    (save-match-data
+      (if (not (string-match regexp to))
+          (cons to "")
+        (while (progn
+                 (setq start (match-end 0))
+                 (push (substring to 0 (- start 2)) list)
+                 (setq char (aref to (1- start))
+                       to (substring to start))
+                 (cond
+                  ((eq char ?#)
+                   (push '(number-to-string replace-count) list))
+                  ((memq char '(?e ?E))
+                   (setq rest to to ""))
+                  ((memq char '(?l ?L ?u ?U))
+                   (let ((result (evil-compile-subreplacement to))
+                         (func (cdr (assoc char
+                                           '((?l . evil-downcase-first)
+                                             (?L . downcase)
+                                             (?u . evil-upcase-first)
+                                             (?U . upcase))))))
+                     (push `(,func
+                             (replace-quote
+                              (evil-match-substitute-replacement
+                               ,(car result) t))) list)
+                     (setq to (cdr result))))
+                  ((eq char ?,)
+                   (setq start (read-from-string to))
+                   (push `(replace-quote ,(car start)) list)
+                   (let ((end
+                          ;; swallow a space after a symbol
+                          (if (and (or (symbolp (car start))
+                                       ;; swallow a space after 'foo,
+                                       ;; but not after (quote foo)
+                                       (and (eq (car-safe (car start)) 'quote)
+                                            (not (= ?\( (aref to 0)))))
+                                   (eq (string-match " " to (cdr start))
+                                       (cdr start)))
+                              (1+ (cdr start))
+                            (cdr start))))
+                     (setq to (substring to end))))
+                  ((eq char ?\\)
+                   (push "\\\\" list))
+                  (t ; let Emacs unescape the character
+                   (push (car-safe (read-from-string
+                                    (format "\"\\%c\"" char))) list)))
+                 (string-match regexp to)))
         (setq to (nreverse (delete "" (cons to list))))
         (replace-match-string-symbols to)
         (cons (if (cdr to)
                   (cons 'concat to)
                 (car to))
-              rest))
-    (cons to "")))
+              rest)))))
 
 (defun evil-compile-replacement (to)
   "Maybe convert a regexp replacement TO to Lisp.
@@ -2519,15 +2865,15 @@ right and center justification or the column at which the lines
 should be left-aligned for left justification."
   (let ((fill-column position)
         adaptive-fill-mode fill-prefix)
-    (save-restriction
-      (narrow-to-region (save-excursion
-                          (goto-char beg)
-                          (line-beginning-position))
-                        (save-excursion
-                          (goto-char end)
-                          (if (bolp)
-                              (line-end-position 0)
-                            (line-end-position))))
+    (evil-with-restriction
+        (save-excursion
+          (goto-char beg)
+          (line-beginning-position))
+        (save-excursion
+          (goto-char end)
+          (if (bolp)
+              (line-end-position 0)
+            (line-end-position)))
       (goto-char (point-min))
       (while (progn
                (if (eq justify 'left)
