@@ -1,0 +1,12 @@
+#!/bin/sh
+tmux new-session -d -s jeffhost -n 'root'
+tmux set-option -g prefix C-a
+
+tmux new-window -t jeffhost:1 -n 'root' 'bash'
+tmux new-window -t jeffhost:2 -n 'misc0' 'bash'
+tmux new-window -t jeffhost:3 -n 'misc1' 'bash'
+tmux new-window -t jeffhost:4 -n 'misc2' 'bash'
+tmux new-window -t jeffhost:5 -n 'misc3' 'bash'
+
+tmux select-window -t jeffhost:1
+tmux -2 attach-session -t jeffhost
