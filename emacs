@@ -32,7 +32,7 @@
 ;; the new system
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized")
-(load-theme 'solarized-dark t)
+(load-theme 'zenburn t)
 
 (setq-default tab-width 4)
 (setq indent-tabs-mode nil)
