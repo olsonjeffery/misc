@@ -20,10 +20,18 @@
 
 (require 'color-theme)
 (defun per-platform-setup ()
-	(when (string= "w32" window-system)
-		(require 'powershell))
-	(when (not (string= "w32" window-system))
-	))
+    (when (string= "w32" window-system)
+	(add-to-list 'load-path "~/.emacs.d/vendor/csharpmode")
+	(require 'powershell)
+	(require 'csharp-mode)
+	(setq auto-mode-alist
+	   (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
+	(defun my-csharp-mode-fn ()
+	  ;; should put something here..
+	)
+	(add-hook  'csharp-mode-hook 'my-csharp-mode-fn t))
+    (when (not (string= "w32" window-system))
+    ))
 (global-set-key (kbd "<s-down>") 'other-window)
 (global-set-key (kbd "<s-up>") 'jeff-back-window)
 (per-platform-setup)
