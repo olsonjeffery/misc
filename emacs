@@ -18,24 +18,6 @@
   (interactive)
   (other-window -1))
 
-(require 'color-theme)
-(defun per-platform-setup ()
-    (when (string= "w32" window-system)
-	(add-to-list 'load-path "~/.emacs.d/vendor/csharpmode")
-	(require 'powershell)
-	(require 'csharp-mode)
-	(setq auto-mode-alist
-	   (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
-	(defun my-csharp-mode-fn ()
-	  ;; should put something here..
-	)
-	(add-hook  'csharp-mode-hook 'my-csharp-mode-fn t))
-    (when (not (string= "w32" window-system))
-    ))
-(global-set-key (kbd "<s-down>") 'other-window)
-(global-set-key (kbd "<s-up>") 'jeff-back-window)
-(per-platform-setup)
-
 ;; we're hopefully running emacs-snapshot, so let's use
 ;; the new system
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
@@ -113,6 +95,7 @@
 ;; auto-complete-mode
 (require 'auto-complete-config)
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/vendor//ac-dict")
+(global-auto-complete-mode t)
 (ac-config-default)
 (add-to-list 'ac-sources 'ac-source-semantic 'ac-source-words-in-same-mode-buffers)
 (setq ac-show-menu-immediately-on-auto-complete t)
@@ -120,6 +103,28 @@
 (add-to-list 'ac-modes 'coffee-mode 'rust-mode)
 (add-to-list 'auto-mode-alist '("\\.cpp\\'" . auto-complete-mode))
 (add-to-list 'auto-mode-alist '("\\.rust\\'" . auto-complete-mode))
+
+(defun auto-complete-mode-maybe()
+  (unless (minibufferp (current-buffer))
+	(auto-complete-mode 1)))
+
+(require 'color-theme)
+(defun per-platform-setup ()
+    (when (string= "w32" window-system)
+	(add-to-list 'load-path "~/.emacs.d/vendor/csharpmode")
+	(require 'powershell)
+	(require 'csharp-mode)
+	(setq auto-mode-alist
+	   (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
+	(defun my-csharp-mode-fn ()
+	  ;; should put something here..
+	)
+	(add-hook  'csharp-mode-hook 'my-csharp-mode-fn t))
+    (when (not (string= "w32" window-system))
+    ))
+(global-set-key (kbd "<s-down>") 'other-window)
+(global-set-key (kbd "<s-up>") 'jeff-back-window)
+(per-platform-setup)
 
 ;; speedbar config
 (require 'sr-speedbar)
