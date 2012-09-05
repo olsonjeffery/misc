@@ -58,13 +58,9 @@
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
-(setq org-agenda-files (list "~/Dropbox/org/sugs.org"
-                             "~/Dropbox/org/mh.org" 
-                             "~/Dropbox/org/work.org" 
-                             "~/Dropbox/org/adept.org" 
-                             "~/Dropbox/org/symmetric.org" 
-                             "~/Dropbox/org/rust.org" 
-                             "~/Dropbox/org/personal.org"))
+(setq org-agenda-files (list "~/Dropbox/org/personal/"
+							 "~/Dropbox/org/ss/"
+                             "~/Dropbox/org/"))
 
 ;; ... dropbox stuff..
 ;; Set to the location of your Org files on your local system
@@ -192,6 +188,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes (quote ("86adc18aa6fb3ea0a801831f7b0bc88ed5999386" default)))
+ '(org-agenda-files nil)
  '(safe-local-variable-values (quote ((buffer-file-coding-system . utf-8-unix)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
