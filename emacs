@@ -60,7 +60,7 @@
 (setq org-log-done t)
 (setq org-agenda-files (list "~/Dropbox/org/personal/"
 							 "~/Dropbox/org/ss/"
-                             "~/Dropbox/org/"))
+                             "~/Dropbox/org/todo.org"))
 
 ;; ... dropbox stuff..
 ;; Set to the location of your Org files on your local system
