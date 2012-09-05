@@ -116,6 +116,12 @@
   (unless (minibufferp (current-buffer))
 	(auto-complete-mode 1)))
 
+(defun org-mobile-push-on-save ()
+  (when (and (stringp buffer-file-name)
+			(string-match "\\.org$" buffer-file-name))
+	(org-mobile-push)))
+(add-hook 'after-save-hook 'org-mobile-push-on-save)
+
 (require 'color-theme)
 (defun per-platform-setup ()
     (when (string= "w32" window-system)
