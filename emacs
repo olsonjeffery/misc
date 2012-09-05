@@ -68,7 +68,11 @@
 ;; Set to the name of the file where new notes will be stored
 (setq org-mobile-inbox-for-pull "~/Dropbox/org/flagged.org") 
 ;; Set to <your Dropbox root directory>/MobileOrg.
-(setq org-mobile-directory "~/Dropbox/MobileOrg") 
+(setq org-mobile-directory"~/Dropbox/MobileOrg") 
+(setq org-mobile-files (list "~/Dropbox/org/todo.org"
+	                         "~/Dropbox/org/ss"
+					         "~/Dropbox/org/personal"
+					         "~/Dropbox/org/work"))
 
 ;; monky - magit-like hg support
 (add-to-list 'load-path "~/.emacs.d/vendor/monky")
