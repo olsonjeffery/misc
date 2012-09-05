@@ -118,6 +118,7 @@
 (require 'color-theme)
 (defun per-platform-setup ()
     (when (string= "w32" window-system)
+	(require 'flymake)
 	(add-to-list 'load-path "~/.emacs.d/vendor/csharpmode")
 	(require 'powershell)
 	(require 'csharp-mode)
