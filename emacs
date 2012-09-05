@@ -59,8 +59,9 @@
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
 (setq org-agenda-files (list "~/Dropbox/org/personal/"
-							 "~/Dropbox/org/ss/"
-                             "~/Dropbox/org/todo.org"))
+	                         "~/Dropbox/org/ss"
+					         "~/Dropbox/org/personal"
+					         "~/Dropbox/org/work"))
 
 ;; ... dropbox stuff..
 ;; Set to the location of your Org files on your local system
