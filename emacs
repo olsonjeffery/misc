@@ -2,6 +2,7 @@
 (add-to-list 'load-path "~/.emacs.d/vendor")
 (add-to-list 'load-path "~/.emacs.d/vendor/coffee-mode")
 (add-to-list 'load-path "~/.emacs.d/vendor/evil")
+(add-to-list 'load-path "~/.emacs.d/vendor/flymake-node-jshint")
 (require 'coffee-mode)
 
 ;; EVIL vim for emacs stuff
@@ -24,11 +25,11 @@
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized")
 (load-theme 'zenburn t)
 
-(setq-default tab-width 4)
-(setq indent-tabs-mode nil)
-(setq c-indent-level 4)
+(setq-default tab-width 2)
+(setq-default indent-tabs-mode nil)
+(setq c-indent-level 2)
 (setq c-default-style "linux"
-	  c-basic-offset 4)
+      c-basic-offset 2)
 (global-linum-mode 1)
 (setq linum-format "%d ")
 (defun coffee-custom ()
@@ -37,8 +38,8 @@
 (add-hook 'coffee-mode-hook
 					'(lambda () (coffee-custom)))
 ;;; Some additional bs to load the marmalade repo
-;(add-to-list 'package-archives
-;			 '("marmalade" . "http://marmalade-repo.org/packages/"))
+                                        ;(add-to-list 'package-archives
+                                        ;			 '("marmalade" . "http://marmalade-repo.org/packages/"))
 
 ;; save/restore desktop
 (desktop-save-mode 1)
@@ -57,11 +58,12 @@
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
+;;(global-set-key (kbd "<tab>") 'org-cycle)
 (setq org-log-done t)
 (setq org-agenda-files (list "~/Dropbox/org/personal/"
-	                         "~/Dropbox/org/ss"
-					         "~/Dropbox/org/personal"
-					         "~/Dropbox/org/work"))
+                             "~/Dropbox/org/ss"
+                             "~/Dropbox/org/personal"
+                             "~/Dropbox/org/work"))
 
 ;; ... dropbox stuff..
 ;; Set to the location of your Org files on your local system
@@ -71,13 +73,13 @@
 ;; Set to <your Dropbox root directory>/MobileOrg.
 (setq org-mobile-directory"~/Dropbox/MobileOrg") 
 (setq org-mobile-files (list "~/Dropbox/org/todo.org"
-	                         "~/Dropbox/org/ss"
-					         "~/Dropbox/org/personal"
-					         "~/Dropbox/org/work"))
+                             "~/Dropbox/org/ss"
+                             "~/Dropbox/org/personal"
+                             "~/Dropbox/org/work"))
 
 ;; monky - magit-like hg support
-(add-to-list 'load-path "~/.emacs.d/vendor/monky")
-(require 'monky)
+;;(add-to-list 'load-path "~/.emacs.d/vendor/monky")
+;;(require 'monky)
 
 ;; cedet
 ;;(load-file "~/.emacs.d/cedet/common/cedet.el")
@@ -89,7 +91,7 @@
 (add-to-list 'load-path "~/.emacs.d/vendor/rust")
 (require 'rust-mode)
 (defun my-rust-mode-hook ()
-  ;(auto-complete-mode 1)
+                                        ;(auto-complete-mode 1)
   )
 (add-hook 'rust-mode-hook 'my-rust-mode-hook)
 
@@ -109,33 +111,37 @@
 (require 'buffer-move)
 (global-set-key (kbd "<C-S-up>")     'buf-move-up)
 (global-set-key (kbd "<C-S-down>")   'buf-move-down)
-(global-set-key (kbd "<C-S-left>")   'buf-move-left)
-(global-set-key (kbd "<C-S-right>")  'buf-move-right)
+(global-set-key (kbd "C-M-[")  (lambda () (interactive)
+                                 (progn (buf-move-left)
+                                 (other-window 1))))
+(global-set-key (kbd "C-M-]")  (lambda () (interactive)
+                                 (progn (buf-move-right)
+                                 (other-window 1))))
 
 (defun auto-complete-mode-maybe()
   (unless (minibufferp (current-buffer))
-	(auto-complete-mode 1)))
+    (auto-complete-mode 1)))
 
 (defun org-mobile-push-on-save ()
   (when (and (stringp buffer-file-name)
-			(string-match "\\.org$" buffer-file-name))
-	(org-mobile-push)))
+             (string-match "\\.org$" buffer-file-name))
+    (org-mobile-push)))
 (add-hook 'after-save-hook 'org-mobile-push-on-save)
 
 (require 'color-theme)
 (defun per-platform-setup ()
-    (when (string= "w32" window-system)
-	(require 'flymake)
-	(add-to-list 'load-path "~/.emacs.d/vendor/csharpmode")
-	(require 'powershell)
-	(require 'csharp-mode)
-	(setq auto-mode-alist
-	   (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
-	(defun my-csharp-mode-fn ()
-	  ;; should put something here..
-	)
-	(add-hook  'csharp-mode-hook 'my-csharp-mode-fn t))
-    (when (not (string= "w32" window-system))
+  (when (string= "w32" window-system)
+    (require 'flymake)
+    (add-to-list 'load-path "~/.emacs.d/vendor/csharpmode")
+    (require 'powershell)
+    (require 'csharp-mode)
+    (setq auto-mode-alist
+          (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
+    (defun my-csharp-mode-fn ()
+      ;; should put something here..
+      )
+    (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t))
+  (when (not (string= "w32" window-system))
     ))
 (global-set-key (kbd "<s-down>") 'other-window)
 (global-set-key (kbd "<s-up>") 'jeff-back-window)
@@ -160,9 +166,9 @@
 
 ;; markdown support
 (autoload 'markdown-mode "markdown-mode.el"
-   "Major mode for editing Markdown files" t)
+  "Major mode for editing Markdown files" t)
 (setq auto-mode-alist
-   (cons '("\\.md" . markdown-mode) auto-mode-alist))
+      (cons '("\\.md" . markdown-mode) auto-mode-alist))
 
 ;; windows and revive -- cross-session window layout
 (require 'windows)
@@ -176,13 +182,22 @@
 (define-key ctl-x-map "F" 'resume)
 (define-key ctl-x-map "K" 'wipe)
 
-;###################################
-;###################################
-;##
-;## AUTO ADD BY TOOLING BELOW HERE
-;##
-;###################################
-;###################################
+;; tern / js support
+;;(autoload 'tern-mode "tern.el" nil t)
+;;(autoload 'tern-mode "tern-auto-complete.el" nil t)
+;;(add-hook 'js-mode-hook (lambda () (tern-mode t)))
+;;(eval-after-load 'tern
+;;  '(progn
+;;     (require 'tern-auto-complete)
+;;     (tern-ac-setup)))
+
+                                        ;###################################
+                                        ;###################################
+                                        ;##
+                                        ;## AUTO ADD BY TOOLING BELOW HERE
+                                        ;##
+                                        ;###################################
+                                        ;###################################
 
 ;;; This was installed by package-install.el.
 ;;; This provides support for the package system and
@@ -209,3 +224,22 @@
  ;; If there is more than one, they won't work right.
  )
 (put 'scroll-left 'disabled nil)
+
+;; jshint support
+(require 'flymake-node-jshint)
+(add-hook 'js-mode-hook (lambda () (flymake-mode 1)))
+
+;; flymake errors in console/tty emacs
+(defun next-flymake-error ()
+  (interactive)
+  (let ((err-buf nil))
+    (condition-case err
+        (setq err-buf (next-error-find-buffer))
+      (error))
+    (if err-buf
+        (next-error)
+      (progn
+        (flymake-goto-next-error)
+        (let ((err (get-char-property (point) 'help-echo)))
+          (when err
+            (message err)))))))
