@@ -58,7 +58,6 @@
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
-;;(global-set-key (kbd "<tab>") 'org-cycle)
 (setq org-log-done t)
 (setq org-agenda-files (list "~/Dropbox/org/personal/"
                              "~/Dropbox/org/ss"
@@ -106,6 +105,7 @@
 (add-to-list 'ac-modes 'coffee-mode 'rust-mode)
 (add-to-list 'auto-mode-alist '("\\.cpp\\'" . auto-complete-mode))
 (add-to-list 'auto-mode-alist '("\\.rust\\'" . auto-complete-mode))
+(setq ac-show-menu t)
 
 ;; buffer-move
 (require 'buffer-move)
@@ -182,14 +182,26 @@
 (define-key ctl-x-map "F" 'resume)
 (define-key ctl-x-map "K" 'wipe)
 
-;; tern / js support
-;;(autoload 'tern-mode "tern.el" nil t)
-;;(autoload 'tern-mode "tern-auto-complete.el" nil t)
-;;(add-hook 'js-mode-hook (lambda () (tern-mode t)))
-;;(eval-after-load 'tern
-;;  '(progn
-;;     (require 'tern-auto-complete)
-;;     (tern-ac-setup)))
+;; jshint support
+(require 'flymake-node-jshint)
+(add-hook 'js-mode-hook (lambda () (flymake-mode 1)))
+
+;; flymake errors in console/tty emacs
+(defun next-flymake-error ()
+  (interactive)
+  (let ((err-buf nil))
+    (condition-case err
+        (setq err-buf (next-error-find-buffer))
+      (error))
+    (if err-buf
+        (next-error)
+      (progn
+        (flymake-goto-next-error)
+        (let ((err (get-char-property (point) 'help-echo)))
+          (when err
+            (message err)))))))
+(global-set-key (kbd "C-M-n")  (lambda () (interactive)
+                                 (next-flymake-error)))
 
                                         ;###################################
                                         ;###################################
@@ -224,22 +236,3 @@
  ;; If there is more than one, they won't work right.
  )
 (put 'scroll-left 'disabled nil)
-
-;; jshint support
-(require 'flymake-node-jshint)
-(add-hook 'js-mode-hook (lambda () (flymake-mode 1)))
-
-;; flymake errors in console/tty emacs
-(defun next-flymake-error ()
-  (interactive)
-  (let ((err-buf nil))
-    (condition-case err
-        (setq err-buf (next-error-find-buffer))
-      (error))
-    (if err-buf
-        (next-error)
-      (progn
-        (flymake-goto-next-error)
-        (let ((err (get-char-property (point) 'help-echo)))
-          (when err
-            (message err)))))))
