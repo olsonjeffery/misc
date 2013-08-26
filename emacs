@@ -22,8 +22,8 @@
 ;; we're hopefully running emacs-snapshot, so let's use
 ;; the new system
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-;(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized")
-;(load-theme 'solarized-dark t)
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized")
+(load-theme 'zenburn t)
 
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
