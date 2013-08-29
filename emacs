@@ -23,7 +23,6 @@
 ;; the new system
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized")
-(load-theme 'zenburn t)
 
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
@@ -141,6 +140,11 @@
       ;; should put something here..
       )
     (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t))
+  (when (string= "x" window-system)
+    (set-default-font "Ubuntu Mono-10")
+    ;(load-theme 'monokai t)
+    (load-theme 'zenburn t)
+    )
   (when (not (string= "w32" window-system))
     ))
 (global-set-key (kbd "<s-down>") 'other-window)
@@ -183,8 +187,8 @@
 (define-key ctl-x-map "K" 'wipe)
 
 ;; jshint support
-(require 'flymake-node-jshint)
-(add-hook 'js-mode-hook (lambda () (flymake-mode 1)))
+;(require 'flymake-node-jshint)
+;(add-hook 'js-mode-hook (lambda () (flymake-mode 1)))
 
 ;; flymake errors in console/tty emacs
 (defun next-flymake-error ()
@@ -227,8 +231,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes (quote ("86adc18aa6fb3ea0a801831f7b0bc88ed5999386" default)))
- '(org-agenda-files nil)
- '(safe-local-variable-values (quote ((buffer-file-coding-system . utf-8-unix)))))
+ '(org-agenda-files nil t)
+ '(safe-local-variable-values (quote ((eval when (fboundp (quote rainbow-mode)) (rainbow-mode 1)) (buffer-file-coding-system . utf-8-unix)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
