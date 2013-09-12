@@ -10,6 +10,18 @@
 (evil-mode 1)
 ;; exit insert mode w/ ctrl+j
 (define-key global-map "\C-j" 'evil-esc)
+(eval-after-load "org" 
+  '(progn
+    (define-key org-mode-map "\C-j" nil)
+    (define-key org-mode-map "\C-j" 'evil-esc)
+    (defun my-org-mode-hook ()
+      ;; The following two lines of code is run from the mode hook.
+      ;; These are for buffer-specific things.
+      ;; In this setup, you want to enable flyspell-mode
+      ;; and run org-reveal for every org buffer.
+      (flyspell-mode 1)
+      (org-reveal))
+    (add-hook 'org-mode-hook 'my-org-mode-hook)))
 
 ;; scroll one line at a time
 (setq scroll-step 1)
@@ -92,6 +104,9 @@
                                         ;(auto-complete-mode 1)
   )
 (add-hook 'rust-mode-hook 'my-rust-mode-hook)
+; rusti
+(load
+ (expand-file-name "~/.emacs.d/vendor/rusti.el"))
 
 ;; auto-complete-mode
 (require 'auto-complete-config)
@@ -115,6 +130,12 @@
                                  (other-window 1))))
 (global-set-key (kbd "C-M-]")  (lambda () (interactive)
                                  (progn (buf-move-right)
+                                 (other-window 1))))
+(global-set-key (kbd "C-M-'")  (lambda () (interactive)
+                                 (progn (buf-move-down)
+                                 (other-window 1))))
+(global-set-key (kbd "C-M-=")  (lambda () (interactive)
+                                 (progn (buf-move-up)
                                  (other-window 1))))
 
 (defun auto-complete-mode-maybe()
@@ -188,8 +209,8 @@
 (define-key ctl-x-map "K" 'wipe)
 
 ;; jshint support
-;(require 'flymake-node-jshint)
-;(add-hook 'js-mode-hook (lambda () (flymake-mode 1)))
+(require 'flymake-node-jshint)
+(add-hook 'js-mode-hook (lambda () (flymake-mode 1)))
 
 ;; flymake errors in console/tty emacs
 (defun next-flymake-error ()
