@@ -167,6 +167,10 @@
     (load-theme 'railscasts t)
     ;(load-theme 'zenburn t)
     )
+  (when (string= "ns" window-system)
+    (set-default-font "Monaco-12")
+    (load-theme 'railscasts t)
+    )
   (when (not (string= "w32" window-system))
     ))
 (global-set-key (kbd "<s-down>") 'other-window)
@@ -174,12 +178,12 @@
 (per-platform-setup)
 
 ;; speedbar config
-(require 'sr-speedbar)
-(global-set-key (kbd "s-s") 'sr-speedbar-toggle)
-(setq sr-speedbar-auto-refresh t)
-(setq sr-speedbar-right-side nil)
+;(require 'sr-speedbar)
+;(global-set-key (kbd "s-s") 'sr-speedbar-toggle)
+;(setq sr-speedbar-auto-refresh t)
+;(setq sr-speedbar-right-side nil)
 ;; use semantic in speedbar	
-(add-hook 'speedbar-load-hook (lambda () (require 'semantic-sb)))
+;(add-hook 'speedbar-load-hook (lambda () (require 'semantic-sb)))
 
 ;; some useful c++ dev stuff
 (defun my-c-mode-common-hook ()
@@ -209,8 +213,8 @@
 (define-key ctl-x-map "K" 'wipe)
 
 ;; jshint support
-(require 'flymake-node-jshint)
-(add-hook 'js-mode-hook (lambda () (flymake-mode 1)))
+;;(require 'flymake-node-jshint)
+;;(add-hook 'js-mode-hook (lambda () (flymake-mode 1)))
 
 ;; flymake errors in console/tty emacs
 (defun next-flymake-error ()
