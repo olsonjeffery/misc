@@ -1,8 +1,37 @@
-;;;; Macros
+;;; evil-macros.el --- Macros
+
+;; Author: Vegard Øye <vegard_oye at hotmail.com>
+;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
+
+;; Version: 1.0.8
+
+;;
+;; This file is NOT part of GNU Emacs.
+
+;;; License:
+
+;; This file is part of Evil.
+;;
+;; Evil is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; Evil is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with Evil.  If not, see <http://www.gnu.org/licenses/>.
 
 (require 'evil-common)
 (require 'evil-states)
 (require 'evil-repeat)
+
+;;; Code:
+
+(declare-function evil-ex-p "evil-ex")
 
 (defun evil-motion-range (motion &optional count type)
   "Execute a motion and return the buffer positions.
@@ -103,14 +132,14 @@ The return value is a list (BEG END TYPE)."
        ;; refresh echo area in Eldoc mode
        (when ',motion
          (eval-after-load 'eldoc
-           '(eldoc-add-command ',motion)))
+           '(and (fboundp 'eldoc-add-command)
+                 (eldoc-add-command ',motion))))
        (evil-define-command ,motion (,@args)
          ,@(when doc `(,doc))          ; avoid nil before `interactive'
          ,@keys
          :keep-visual t
          (interactive ,@interactive)
-         (evil-with-adjust-cursor
-           ,@body)))))
+         ,@body))))
 
 (defmacro evil-define-union-move (name args &rest moves)
   "Create a movement function named NAME.
@@ -475,23 +504,20 @@ if COUNT is positive, and to the left of it if negative.
 The return value is a list (BEG END), or (BEG END TYPE) if
 RETURN-TYPE is non-nil."
   (let ((motion (or evil-operator-range-motion
-                    (when (and (fboundp 'evil-ex-p) (evil-ex-p))
-                      #'evil-line)))
+                    (when (evil-ex-p) 'evil-line)))
         (type evil-operator-range-type)
         (range (evil-range (point) (point)))
         command count modifier)
     (evil-save-echo-area
       (cond
-       ;; Visual selection
-       ((evil-visual-state-p)
-        (setq range (evil-visual-range)))
        ;; Ex mode
-       ((and (fboundp 'evil-ex-p)
-             (evil-ex-p)
-             evil-ex-range)
+       ((and (evil-ex-p) evil-ex-range)
         (setq range evil-ex-range))
+       ;; Visual selection
+       ((and (not (evil-ex-p)) (evil-visual-state-p))
+        (setq range (evil-visual-range)))
        ;; active region
-       ((region-active-p)
+       ((and (not (evil-ex-p)) (region-active-p))
         (setq range (evil-range (region-beginning)
                                 (region-end)
                                 (or evil-this-type 'exclusive))))
@@ -532,7 +558,8 @@ RETURN-TYPE is non-nil."
                   (* (prefix-numeric-value count)
                      (prefix-numeric-value current-prefix-arg)))))
           (when motion
-            (let ((evil-state 'operator))
+            (let ((evil-state 'operator)
+                  mark-active)
               ;; calculate motion range
               (setq range (evil-motion-range
                            motion

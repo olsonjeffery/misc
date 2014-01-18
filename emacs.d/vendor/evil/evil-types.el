@@ -1,4 +1,31 @@
-;;;; Type system
+;;; evil-types.el --- Type system
+
+;; Author: Vegard Øye <vegard_oye at hotmail.com>
+;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
+
+;; Version: 1.0.8
+
+;;
+;; This file is NOT part of GNU Emacs.
+
+;;; License:
+
+;; This file is part of Evil.
+;;
+;; Evil is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; Evil is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with Evil.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
 
 ;; A type defines a transformation on a pair of buffer positions.
 ;; Types are used by Visual state (character/line/block selection)
@@ -26,6 +53,8 @@
 (require 'evil-common)
 (require 'evil-macros)
 
+;;; Code:
+
 ;;; Type definitions
 
 (evil-define-type exclusive
@@ -46,7 +75,7 @@ If the end position is at the beginning of a line, then:
                  (cond
                   ((progn
                      (goto-char beg)
-                     (looking-back "^[ \f\t\v]*"))
+                     (looking-back "^[ \f\t\v]*" (line-beginning-position)))
                    (evil-expand beg end 'line))
                   (t
                    (unless evil-cross-lines
@@ -247,7 +276,10 @@ directly."
 
 (evil-define-interactive-code "<C>"
   "Character read through `evil-read-key'."
-  (list (evil-read-key)))
+  (list
+   (if (evil-operator-state-p)
+       (evil-without-restriction (evil-read-key))
+     (evil-read-key))))
 
 (evil-define-interactive-code "<r>"
   "Untyped motion range (BEG END)."
@@ -306,6 +338,17 @@ If visual state is inactive then those values are nil."
   (list (when (and (evil-ex-p) evil-ex-argument)
           (intern evil-ex-argument))))
 
+(evil-define-interactive-code "<addr>"
+  "Ex line number."
+  (list
+   (and (evil-ex-p)
+        (let ((expr (evil-ex-parse  evil-ex-argument)))
+          (if (eq (car expr) 'evil-goto-line)
+              (save-excursion
+                (goto-char evil-ex-point)
+                (eval (cadr expr)))
+            (error "Invalid address"))))))
+
 (evil-define-interactive-code "<!>"
   "Ex bang argument."
   :ex-bang t
@@ -325,7 +368,7 @@ If visual state is inactive then those values are nil."
   "Ex substitution argument."
   :ex-arg substitution
   (when (evil-ex-p)
-    (evil-ex-get-substitute-info evil-ex-argument)))
+    (evil-ex-get-substitute-info evil-ex-argument t)))
 
 (provide 'evil-types)
 
