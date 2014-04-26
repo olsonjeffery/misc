@@ -1,0 +1,1812 @@
+;; -*- mode: emacs-lisp; coding: emacs-mule; -*-
+;; --------------------------------------------------------------------------
+;; Desktop File for Emacs
+;; --------------------------------------------------------------------------
+;; Created Sat Apr 26 12:10:51 2014
+;; Desktop file format version 206
+;; Emacs version 24.3.50.1
+
+;; Global section:
+(setq desktop-saved-frameset [frameset 1 (21339 59547 556871 0) (desktop . "206") "jeff@mbp.local" nil nil ((((font-backend mac-ct ns) (fontsize . 0) (font . "-*-Monaco-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1") (border-width . 0) (internal-border-width . 2) (vertical-scroll-bars) (foreground-color . "#E6E1DC") (background-color . "#232323") (line-spacing) (left-fringe . 10) (right-fringe . 11) (menu-bar-lines . 0) (tool-bar-lines . 0) (title) (icon-type) (auto-raise) (auto-lower) (cursor-type . box) (scroll-bar-width . 0) (alpha) (fullscreen . fullheight) (horizontal-scroll-bars . t) (display-type . color) (background-mode . dark) (cursor-color . "#DDDDDD") (environment) (display . "mbp.local") (frameset--id . "AFB2-7FAE-3EA0-687D") (frameset--mini t . t) (modeline . t) (minibuffer . t) (unsplittable) (right-divider-width . 0) (bottom-divider-width . 0) (icon-name) (explicit-name . t) (tool-bar-position . top) (user-size . t) (visibility . t) (height . 46) (width . 179) (left . 0) (top . 22)) ((min-height . 8) (min-width . 20) (min-height-ignore . 4) (min-width-ignore . 12) (min-height-safe . 2) (min-width-safe . 4) (min-pixel-height . 128) (min-pixel-width . 140) (min-pixel-height-ignore . 64) (min-pixel-width-ignore . 70) (min-pixel-height-safe . 32) (min-pixel-width-safe . 28)) hc (pixel-width . 1274) (pixel-height . 720) (total-width . 182) (total-height . 45) (normal-height . 1.0) (normal-width . 1.0) (combination-limit) (leaf (pixel-width . 630) (pixel-height . 720) (total-width . 90) (total-height . 45) (normal-height . 1.0) (normal-width . 0.4945054945054945) (buffer "data.rs" (selected) (hscroll . 0) (fringes 10 11 nil) (margins 3) (scroll-bars 0 0 t nil) (vscroll . 0) (dedicated) (point . 457) (start . 1))) (vc (last . t) (pixel-width . 644) (pixel-height . 720) (total-width . 92) (total-height . 45) (normal-height . 1.0) (normal-width . 0.5054945054945055) (combination-limit) (leaf (pixel-width . 644) (pixel-height . 248) (total-width . 92) (total-height . 15) (normal-height . 0.3517730496453901) (normal-width . 1.0) (buffer "notes.org" (selected . t) (hscroll . 0) (fringes 10 11 nil) (margins 3) (scroll-bars 0 0 t nil) (vscroll . 0) (dedicated) (point . 76) (start . 1))) (leaf (last . t) (pixel-width . 644) (pixel-height . 472) (total-width . 92) (total-height . 30) (normal-height . 0.6482269503546099) (normal-width . 1.0) (buffer "tiledata.rs" (selected) (hscroll . 0) (fringes 10 11 nil) (margins nil) (scroll-bars 0 0 t nil) (vscroll . 0) (dedicated) (point . 1) (start . 1))))))])
+(setq desktop-missing-file-warning nil)
+(setq tags-file-name nil)
+(setq tags-table-list nil)
+(setq search-ring '("jj" "i~"))
+(setq regexp-search-ring '("World<" "fn new" "impl<" "TPayload" "Tile" "\\<tests\\>" "TileData" "fn first" "zone_cache" "expect" "TileData" "unwrap" "\\<zone\\>" "\\<load_from_json\\>" "\\<compute_octant\\>" "let mut zones"))
+(setq register-alist '((108) (97) (127 . [escape 97 backspace escape 24 19 107 107 98 42 36 97 59 escape 24 19 95 42 106 108 108 108 108 108 108 108 108 108 108 108 108 108 108 108 108 108 108 120 24 19 108 108 97 115 escape 24 19 107 107 86 106 106 106 106 106 100 79 escape 24 19 71 107 107 107 107 107 107 107 107 107 107 107 107 106 106 111 102 110 32 97 100 100 95 102 111 110 116 40 38 backspace escape 100 100 107 107 37 105 32 escape 24 19 107 107 107 106 107 107 107 79 102 110 32 97 100 100 95 102 111 110 116 40 escape 106 95 119 105 109 117 116 32 escape 24 19 107 36 97 38 109 117 116 32 72 97 115 104 backspace backspace backspace backspace backspace backspace backspace backspace backspace 102 58 32 72 backspace 38 109 117 116 32 72 97 115 104 77 97 112 60 99 104 97 114 44 32 83 112 114 105 116 101 84 105 108 101 62 44 32 40 backspace 120 58 32 117 105 110 116 44 32 121 58 32 117 105 110 116 44 32 115 backspace 115 105 122 101 58 32 117 105 110 116 41 32 123 return 125 escape 79 escape 80 117 79 102 46 105 110 115 101 114 116 40 escape 107 107 106 119 119 119 119 119 119 119 119 119 119 105 105 100 120 backspace backspace backspace 107 58 32 99 104 97 114 44 32 escape 106 106 107 97 107 44 32 83 112 114 105 116 101 84 105 108 101 33554464 123 32 110 backspace 115 104 101 101 116 58 33554464 126 34 108 111 102 111 95 105 110 backspace backspace backspace backspace 105 95 105 110 116 101 114 return 34 44 32 99 111 111 114 100 115 58 32 40 backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace return 99 111 111 114 100 115 58 32 40 120 32 42 33554464 115 105 122 101 44 32 121 32 42 33554464 115 105 122 101 41 44 return 115 105 122 101 58 32 115 backspace 40 115 105 122 101 44 32 115 105 122 101 41 32 125 41 59 escape 24 19 106 106 106 106 106 106 111 97 100 100 95 102 111 110 116 40 102 111 110 116 115 escape 107 107 107 107 97 escape 105 backspace backspace backspace backspace escape 106 106 106 106 106 106 36 104 105 backspace backspace backspace backspace escape 107 107 97 backspace backspace backspace backspace backspace 38 102 44 32 39 48 39 44 32 52 44 32 54 44 32 56 41 59 escape 107 100 100 24 19 108 119 119 105 109 117 116 32 escape 24 19 121 121 112 112 112 112 112 112 112 112 112 107 107 107 107 107 107 107 107 119 119 119 119 119 108 97 backspace 49 escape 108 108 108 108 97 backspace 53 escape 106 97 backspace 54 escape 106 97 backspace 55 escape 106 97 backspace 56 escape 106 97 backspace 56 backspace 57 escape 106 97 backspace 49 48 escape 106 97 escape 105 backspace 49 49 escape 106 105 backspace 49 50 escape 106 105 backspace 49 51 escape 104 104 104 104 105 backspace 57 escape 107 97 backspace 56 escape 107 97 backspace 55 escape 107 97 backspace 54 escape 107 97 backspace 54 backspace 53 escape 107 97 backspace 52 escape 107 97 backspace 51 escape 107 97 backspace 50 escape 24 19 106 106 106 106 106 106 106 121 121 112 119 119 119 119 119 108 97 backspace 33 escape 108 108 108 108 108 97 backspace 52 escape 121 121 112 119 119 119 119 119 108 97 backspace 50 backspace 64 escape 108 108 108 108 108 97 backspace 53 escape 121 121 112 119 119 119 119 119 108 97 backspace 35 escape 108 108 108 108 108 97 backspace backspace 48 escape 108 108 108 97 backspace 55 escape]) (119) (113)))
+(setq file-name-history '("~/src/dungeongame/src/client/hfcs/mod.rs" "~/src/dungeongame/notes.org" "~/src/dungeongame/src/client/hfcs/tiledata.rs" "~/src/dungeongame/src/client/hfcs/ux/zone_mgr.rs" "~/.emacs" "~/Dropbox/org/conf.org" "~/src/dungeongame/p2d/src/p2dux/ui/mod.rs" "~/src/dungeongame/src/client/hfcs/ux/mod.rs" "~/src/dungeongame/p2d/src/p2dux/view.rs" "~/src/dungeongame/p2d/src/p2dux/ux.rs" "~/src/dungeongame/p2d/src/p2dux/ui/menu.rs" "~/src/dungeongame/p2d/src/p2dux/ui/mod.rs" "~/src/dungeongame/p2d/src/p2dux/gfx/mod.rs" "~/src/dungeongame/p2d/src/p2dux/lib.rs" "~/src/dungeongame/p2d/src/rust-sdl2/rust-sdl2/src/sdl2/generated/keycode.rs" "~/src/dungeongame/p2d/src/rust-sdl2/rust-sdl2/src/sdl2/lib.rs" "~/src/dungeongame/p2d/src/rust-sdl2/rust-sdl2/src/sdl2/sdl.rs" "~/src/dungeongame/p2d/src/rust-sdl2/rust-sdl2/src/sdl2/keyboard.rs" "~/src/dungeongame/p2d/src/rust-sdl2/rust-sdl2/src/codegen/keycode.rs" "~/src/dungeongame/src/client/hfcs/ux/" "~/src/rust/src/libstd/vec.rs" "~/Dropbox/org/ss/mh.org" "~/Dropbox/org/todo.org" "~/src/dungeongame/src/client/hfcs/ux/zone_mgr.rs" "~/src/dungeongame/src/client/hfcs/ux/menus.rs" "~/src/rust/src/libtime/lib.rs" "~/src/dungeongame/p2d/src/p2dux/lib.rs" "~/src/dungeongame/game.org" "~/src/rust/src/libstd/slice.rs" "~/src/rust/src/libstd/lib.rs"))
+
+;; Buffer section -- buffers listed in same order as in buffer list:
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/notes.org"
+  "notes.org"
+  'org-mode
+  '(visual-line-mode undo-tree-mode linum-mode auto-complete-mode)
+  76
+  '(76 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . utf-8-unix) (truncate-lines)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/hfcs/data.rs"
+  "data.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  457
+  '(311 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/hfcs/tiledata.rs"
+  "tiledata.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2d/fov.rs"
+  "fov.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  16920
+  '(4642 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2d/world.rs"
+  "world.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  4189
+  '(1727 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/hfcs/builder.rs"
+  "builder.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  111
+  '(138 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/hfcs/mod.rs"
+  "mod.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  73
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/vec.rs"
+  "vec.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  18317
+  '(39874 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/hfcs/ux/zone_mgr.rs"
+  "zone_mgr.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode hs-minor-mode)
+  4181
+  '(1997 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/main.rs"
+  "main.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1971
+  '(2675 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libuuid/lib.rs"
+  "lib.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  5216
+  '(5514 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/hfcs/ux/mod.rs"
+  "mod.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  71
+  '(26 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2d/zone.rs"
+  "zone.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode hs-minor-mode)
+  1601
+  '(2250 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2d/portal.rs"
+  "portal.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  525
+  '(235 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/.emacs"
+  ".emacs"
+  'emacs-lisp-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1111
+  '(803 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2dux/ui/menu.rs"
+  "menu.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  682
+  '(257 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/Dropbox/org/conf.org"
+  "conf.org"
+  'org-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  108
+  '(906 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . utf-8-unix) (truncate-lines . t)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/hfcs/ux/draw.rs"
+  "draw.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  42
+  '(382 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2dux/view.rs"
+  "view.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  285
+  '(280 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2dux/ui/mod.rs"
+  "mod.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1
+  '(235 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2dux/lib.rs"
+  "lib.rs<2>"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  651
+  '(664 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/hfcs/ux/menus.rs"
+  "menus.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  105
+  '(882 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/hfcs/oryx.rs"
+  "oryx.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  169
+  '(12685 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/num/uint.rs"
+  "uint.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  609
+  '(2688 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2dux/gfx/mod.rs"
+  "mod.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  613
+  '(1271 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/rust-sdl2/rust-sdl2/src/sdl2/generated/keycode.rs"
+  "keycode.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  306
+  '(40496 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/rust-sdl2/rust-sdl2/src/sdl2/lib.rs"
+  "lib.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  162
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/rust-sdl2/rust-sdl2/src/sdl2/sdl.rs"
+  "sdl.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/rust-sdl2/rust-sdl2/src/sdl2/keyboard.rs"
+  "keyboard.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/rust-sdl2/rust-sdl2/src/codegen/keycode.rs"
+  "keycode.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1
+  '(1359 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  nil
+  "ux"
+  'dired-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  260
+  '(nil nil)
+  t
+  '("/Users/jeff/src/dungeongame/src/client/hfcs/ux/")
+  nil)
+
+(desktop-create-buffer 206
+  "/Users/jeff/Dropbox/org/todo.org"
+  "todo.org"
+  'org-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  91
+  '(91 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (truncate-lines . t)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libtime/lib.rs"
+  "lib.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  4519
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2dux/gfx/texture.rs"
+  "texture.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1474
+  '(716 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/vecngwriter.rs"
+  "vecngwriter.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  146
+  '(2046 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/io/mem.rs"
+  "mem.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1594
+  '(1906 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/lib.rs"
+  "lib.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  4431
+  '(4431 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/slice.rs"
+  "slice.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  49040
+  '(5128 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  nil
+  "client"
+  'dired-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  189
+  '(nil nil)
+  t
+  '("/Users/jeff/src/dungeongame/src/client/")
+  nil)
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/io/mod.rs"
+  "mod.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  13252
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/str.rs"
+  "str.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  40932
+  '(32764 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/src/client/hfcs/agent.rs"
+  "agent.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  40
+  '(39 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2dux/gfx/draw.rs"
+  "draw.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  38
+  '(235 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/Makefile"
+  "Makefile"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  219
+  '(31 nil)
+  nil
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libserialize/serialize.rs"
+  "serialize.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  5820
+  '(5820 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/etc/snapshot.py"
+  "snapshot.py"
+  'python-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  653
+  '(756 nil)
+  nil
+  nil
+  '((tab-width . 8) (indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/etc/tidy.py"
+  "tidy.py"
+  'python-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1127
+  '(1099 nil)
+  nil
+  nil
+  '((tab-width . 8) (indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/Makefile"
+  "Makefile"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(505 nil)
+  nil
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/comm/mod.rs"
+  "mod.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  20824
+  '(19233 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/rust-mk/rust.mk"
+  "rust.mk"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  4997
+  '(4751 nil)
+  nil
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2d/lib.rs"
+  "lib.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  403
+  '(236 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/mk/tests.mk"
+  "tests.mk"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  8833
+  '(6622 nil)
+  nil
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/etc/check-binaries.py"
+  "check-binaries.py"
+  'python-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((tab-width . 8) (indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/mk/target.mk"
+  "target.mk"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  4174
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/mk/host.mk"
+  "host.mk"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1596
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/mk/crates.mk"
+  "crates.mk"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  2791
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/mk/prepare.mk"
+  "prepare.mk"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  510
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/mk/dist.mk"
+  "dist.mk"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  2987
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/mk/main.mk"
+  "main.mk"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  2751
+  '(5326 nil)
+  nil
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/build/Makefile"
+  "Makefile"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  7967
+  '(1103 nil)
+  t
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/mk/util.mk"
+  "util.mk"
+  'makefile-bsdmake-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/iter.rs"
+  "iter.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  14912
+  '(14703 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/p2d/sprite.rs"
+  "sprite.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  235
+  '(235 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libcollections/hashmap.rs"
+  "hashmap.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  51702
+  '(26241 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  nil
+  "p2d"
+  'dired-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  240
+  '(nil nil)
+  t
+  '("/Users/jeff/src/dungeongame/p2d/")
+  nil)
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/mrpas-js/mrpas.js"
+  "mrpas.js"
+  'js-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  5343
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/cargo-lite/cargo-lite"
+  "cargo-lite"
+  'python-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  5433
+  '(1178 nil)
+  nil
+  nil
+  '((tab-width . 8) (indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/src/rust-sdl2/build.sh"
+  "build.sh"
+  'sh-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  227
+  '(349 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  nil
+  "rust-sdl2"
+  'dired-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  241
+  '(nil nil)
+  t
+  '("/Users/jeff/src/dungeongame/p2d/src/rust-sdl2/")
+  nil)
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/algorithms-rust/README.md"
+  "README.md"
+  'markdown-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  23
+  '(92 nil)
+  nil
+  nil
+  '((tab-width . 4) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/sandbox/phlo.rs"
+  "phlo.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  181
+  '(181 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  nil
+  "p2dux"
+  'dired-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  240
+  '(nil nil)
+  t
+  '("/Users/jeff/src/dungeongame/p2d/src/p2dux/")
+  nil)
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/.gitignore"
+  ".gitignore"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  781
+  '(781 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/io/process.rs"
+  "process.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  2166
+  '(987 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/test/run-pass/issue-4016.rs"
+  "issue-4016.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  509
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/test/run-pass/issue-4036.rs"
+  "issue-4036.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  482
+  '(594 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/doc/index.md"
+  "index.md"
+  'markdown-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1605
+  '(1638 nil)
+  nil
+  nil
+  '((tab-width . 4) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libsyntax/diagnostic.rs"
+  "diagnostic.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  2785
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/test/run-pass/deriving-encodable-decodable.rs"
+  "deriving-encodable-decodable.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  679
+  '(679 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/test/run-pass/auto-encode.rs"
+  "auto-encode.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  810
+  '(810 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libsyntax/ext/deriving/generic.rs"
+  "generic.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  6332
+  '(6331 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libsyntax/ast.rs"
+  "ast.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  33552
+  '(33552 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libsyntax/parse/mod.rs"
+  "mod.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  9492
+  '(9492 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libserialize/ebml.rs"
+  "ebml.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  525
+  '(32343 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libserialize/lib.rs"
+  "lib.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  26
+  '(797 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/test/run-pass/deriving-global.rs"
+  "deriving-global.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1019
+  '(585 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/librustdoc/lib.rs"
+  "lib.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  891
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/librustc/metadata/decoder.rs"
+  "decoder.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1176
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/librustc/metadata/encoder.rs"
+  "encoder.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  902
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libsyntax/parse/token.rs"
+  "token.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  606
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/librustc/metadata/csearch.rs"
+  "csearch.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  694
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/librustc/middle/astencode.rs"
+  "astencode.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1407
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/librustc/lib.rs"
+  "lib.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1077
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libsyntax/ext/deriving/encodable.rs"
+  "encodable.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  3960
+  '(7378 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libsyntax/ext/deriving/decodable.rs"
+  "decodable.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1317
+  '(1317 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libsyntax/codemap.rs"
+  "codemap.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1139
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libsyntax/lib.rs"
+  "lib.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1022
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libflate/lib.rs"
+  "lib.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  497
+  '(578 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/blog/rust-tip-parameters-vs-bounds.md"
+  "rust-tip-parameters-vs-bounds.md"
+  'markdown-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  659
+  '(275 nil)
+  nil
+  nil
+  '((tab-width . 4) (buffer-file-coding-system . undecided-unix) (case-fold-search . t)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/blog/code/blog03.rs"
+  "blog03.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1
+  '(476 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/blog/serialization-branch.rs"
+  "serialization-branch.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  510
+  '(511 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/blog/blog02.rs"
+  "blog02.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  688
+  '(687 t)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/rt/rtio.rs"
+  "rtio.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  2209
+  '(3723 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/io/net/tcp.rs"
+  "tcp.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  657
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/blog/networking.md"
+  "networking.md"
+  'markdown-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  787
+  '(12381 nil)
+  nil
+  nil
+  '((tab-width . 4) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/servlet.rs"
+  "servlet.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1
+  '(163 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/server.rs"
+  "server.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  846
+  '(847 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/rust-http/src/http/generated/status.rs"
+  "status.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  937
+  '(10068 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/dispatcher.rs"
+  "dispatcher.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  179
+  '(179 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/router.rs"
+  "router.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  292
+  '(347 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/controllers/foo.rs"
+  "foo.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  347
+  '(252 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust-http/src/codegen/status.rs"
+  "status.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  5960
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/rust-http/src/codegen/status.rs"
+  "status.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  5960
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/rust-http/src/http/server/response.rs"
+  "response.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1175
+  '(119 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/generator.rs"
+  "generator.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1078
+  '(1317 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/controllers/builtin.rs"
+  "builtin.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  343
+  '(31 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/rust-http/src/http/lib.rs"
+  "lib.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  469
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/rust-http/src/http/rfc2616.rs"
+  "rfc2616.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/feral/rust-http/src/http/headers/content_type.rs"
+  "content_type.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1456
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/num/u64.rs"
+  "u64.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/num/mod.rs"
+  "mod.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  24708
+  '(24708 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/blog/messaging_and_serialization_in_rust.md"
+  "messaging_and_serialization_in_rust.md"
+  'markdown-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  7387
+  '(2069 nil)
+  nil
+  nil
+  '((tab-width . 4) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/io/fs.rs"
+  "fs.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  22079
+  '(18372 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/path/mod.rs"
+  "mod.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  849
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/blog/reading_files_in_rust.md"
+  "reading_files_in_rust.md"
+  'markdown-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  7527
+  '(1 nil)
+  nil
+  nil
+  '((tab-width . 4) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/io/net/ip.rs"
+  "ip.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  10504
+  '(498 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/prelude.rs"
+  "prelude.rs"
+  'rust-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  1510
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/LICENSE.txt"
+  "LICENSE.txt"
+  'text-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  332
+  '(190 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/misc/emacs.d/Cask"
+  "Cask"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  81
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/cmp.rs"
+  "cmp.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1700
+  '(1636 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/cell.rs"
+  "cell.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  3965
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/rc.rs"
+  "rc.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  4573
+  '(2281 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/p2d/rust-sdl2/src/codegen/keycode.rs"
+  "keycode.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  93
+  '(93 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/p2d/rust-sdl2/src/codegen/scancode.rs"
+  "scancode.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  475
+  '(319 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/io/net/mod.rs"
+  "mod.rs<6>"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/npbc/index.html"
+  "index.html"
+  'html-mode
+  '(undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  3103
+  '(2213 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/rt/mod.rs"
+  "mod.rs<5>"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  6475
+  '(472 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/io/util.rs"
+  "util.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/char.rs"
+  "char.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  877
+  '(17335 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libgreen/lib.rs"
+  "lib.rs<3>"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  9417
+  '(8155 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libstd/task.rs"
+  "task.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  2250
+  '(1750 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libgreen/task.rs"
+  "task.rs<2>"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  18233
+  '(18342 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust/src/libgreen/sched.rs"
+  "sched.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  38021
+  '(38001 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/ss0/client/src/map_view_input_handler.js"
+  "map_view_input_handler.js"
+  'js-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  2446
+  '(3175 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/ss0/client/src/intro_view.js"
+  "intro_view.js"
+  'js-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  4899
+  '(3244 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/ss0/client/src/main.js"
+  "main.js"
+  'js-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  224
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/ss0/client/src/gfx.js"
+  "gfx.js"
+  'js-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  565
+  '(289 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/ss0/client/vendor/three.js"
+  "three.js"
+  'js-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  394890
+  '(287209 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/dungeongame/p2d/README.md"
+  "README.md"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  4974
+  '(4974 nil)
+  nil
+  nil
+  '((tab-width . 4) (buffer-file-coding-system . utf-8-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust-mrpas-demo/src/mrpas-demo/map.rs"
+  "map.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1266
+  '(2612 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust-mrpas-demo/src/mrpas-demo/main.rs"
+  "main.rs<3>"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  780
+  '(793 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust-mrpas-demo/.gitignore"
+  ".gitignore"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  827
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust-mrpas-demo/tcod_mrpas/src/fov.c"
+  "fov.c"
+  'c-mode
+  '(abbrev-mode undo-tree-mode linum-mode auto-complete-mode flycheck-mode)
+  3402
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/src/rust-mrpas-demo/src/mrpas-demo/mrpas.rs"
+  "mrpas.rs"
+  'fundamental-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  6574
+  '(6375 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/Dropbox/org/ss/adept.org"
+  "adept.org"
+  'org-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (truncate-lines . t)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/Dropbox/org/ss/sugs.org"
+  "sugs.org"
+  'org-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (truncate-lines . t)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/Dropbox/org/ss/symmetric.org"
+  "symmetric.org"
+  'org-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-dos) (truncate-lines . t)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/Dropbox/org/personal/dj.org"
+  "dj.org"
+  'org-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (truncate-lines . t)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/Dropbox/org/personal/house.org"
+  "house.org"
+  'org-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((truncate-lines . t)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/Dropbox/org/personal/personal.org"
+  "personal.org"
+  'org-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (truncate-lines . t)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/Dropbox/org/work/list.org"
+  "list.org"
+  'org-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((truncate-lines . t)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/Dropbox/org/work/redmine.org"
+  "redmine.org"
+  'org-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (truncate-lines . t)))
+
+(desktop-create-buffer 206
+  "/Users/jeff/Dropbox/org/ss/mh.org"
+  "mh.org"
+  'org-mode
+  '(undo-tree-mode linum-mode auto-complete-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (truncate-lines . t)))
+

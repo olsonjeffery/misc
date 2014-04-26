@@ -2,12 +2,16 @@
 (add-to-list 'load-path "~/.emacs.d/vendor")
 (add-to-list 'load-path "~/.emacs.d/vendor/coffee-mode")
 (add-to-list 'load-path "~/.emacs.d/vendor/evil")
-(add-to-list 'load-path "~/.emacs.d/vendor/flymake-node-jshint")
 (require 'coffee-mode)
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(package-initialize)
 
 ;; EVIL vim for emacs stuff
 (require 'evil)
 (evil-mode 1)
+(setq evil-default-cursor '("#DDDDDD" box))
 ;; exit insert mode w/ ctrl+j
 (define-key global-map "\C-j" 'evil-esc)
 (eval-after-load "org" 
@@ -48,9 +52,6 @@
 	(set (make-local-variable 'tab-width) 2))
 (add-hook 'coffee-mode-hook
 					'(lambda () (coffee-custom)))
-;;; Some additional bs to load the marmalade repo
-                                        ;(add-to-list 'package-archives
-                                        ;			 '("marmalade" . "http://marmalade-repo.org/packages/"))
 
 ;; save/restore desktop
 (desktop-save-mode 1)
@@ -87,27 +88,6 @@
                              "~/Dropbox/org/personal"
                              "~/Dropbox/org/work"))
 
-;; monky - magit-like hg support
-;;(add-to-list 'load-path "~/.emacs.d/vendor/monky")
-;;(require 'monky)
-
-;; cedet
-;;(load-file "~/.emacs.d/cedet/common/cedet.el")
-;;(semantic-load-enable-excessive-code-helpers)
-;;(require 'semantic-ia)
-;;(require 'semantic-gcc)
-
-;; rust-mode
-(add-to-list 'load-path "~/.emacs.d/vendor/rust")
-(require 'rust-mode)
-(defun my-rust-mode-hook ()
-                                        ;(auto-complete-mode 1)
-  )
-(add-hook 'rust-mode-hook 'my-rust-mode-hook)
-; rusti
-(load
- (expand-file-name "~/.emacs.d/vendor/rusti.el"))
-
 ;; auto-complete-mode
 (require 'auto-complete-config)
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/vendor//ac-dict")
@@ -118,7 +98,8 @@
 (setq ac-auto-show-menu 1)
 (add-to-list 'ac-modes 'coffee-mode 'rust-mode)
 (add-to-list 'auto-mode-alist '("\\.cpp\\'" . auto-complete-mode))
-(add-to-list 'auto-mode-alist '("\\.rust\\'" . auto-complete-mode))
+(add-to-list 'auto-mode-alist '("\\.rs\\'" . auto-complete-mode))
+(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 (setq ac-show-menu t)
 
 ;; buffer-move
@@ -166,16 +147,30 @@
     ;(load-theme 'monokai t)
     (load-theme 'railscasts t)
     ;(load-theme 'zenburn t)
+    (require 'cask "~/.cask/cask.el")
+    (cask-initialize)
+    (add-hook 'after-init-hook #'global-flycheck-mode)
     )
   (when (string= "ns" window-system)
     (set-default-font "Monaco-12")
     (load-theme 'railscasts t)
+    ;(require 'cask "~/.cask/cask.el")
+    ;(cask-initialize)
+    (add-hook 'after-init-hook #'global-flycheck-mode)
     )
   (when (not (string= "w32" window-system))
     ))
 (global-set-key (kbd "<s-down>") 'other-window)
 (global-set-key (kbd "<s-up>") 'jeff-back-window)
 (per-platform-setup)
+
+;; rust-mode
+(add-to-list 'load-path "~/.emacs.d/vendor/rust")
+(require 'rust-mode)
+(defun my-rust-mode-hook ()
+                                        ;(auto-complete-mode 1)
+  )
+(add-hook 'rust-mode-hook 'my-rust-mode-hook)
 
 ;; speedbar config
 ;(require 'sr-speedbar)
@@ -241,28 +236,26 @@
                                         ;###################################
                                         ;###################################
 
-;;; This was installed by package-install.el.
-;;; This provides support for the package system and
-;;; interfacing with ELPA, the package archive.
-;;; Move this code earlier if you want to reference
-;;; packages in your .emacs.
-(when
-		(load
-		 (expand-file-name "~/.emacs.d/vendor/package.el"))
-	(package-initialize))
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes (quote ("86adc18aa6fb3ea0a801831f7b0bc88ed5999386" default)))
+ '(custom-safe-themes
+   (quote
+    ("86adc18aa6fb3ea0a801831f7b0bc88ed5999386" default)))
  '(org-agenda-files nil t)
- '(safe-local-variable-values (quote ((eval when (fboundp (quote rainbow-mode)) (rainbow-mode 1)) (buffer-file-coding-system . utf-8-unix)))))
+ '(safe-local-variable-values
+   (quote
+    ((eval when
+           (fboundp
+            (quote rainbow-mode))
+           (rainbow-mode 1))
+     (buffer-file-coding-system . utf-8-unix)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(cursor ((t (:background "#EEEEEE" :foreground "#5A647E")))))
 (put 'scroll-left 'disabled nil)
