@@ -143,7 +143,7 @@
       )
     (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t))
   (when (string= "x" window-system)
-    (set-default-font "Ubuntu Mono-10")
+    (set-default-font "Ubuntu Mono-12")
     ;(load-theme 'monokai t)
     (load-theme 'railscasts t)
     ;(load-theme 'zenburn t)
