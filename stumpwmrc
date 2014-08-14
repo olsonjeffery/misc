@@ -1,0 +1,17 @@
+;; -*-lisp-*-
+;;
+;; Jeff's .stumpwmrc
+
+(in-package :stumpwm)
+
+;; Web jump
+;;(defmacro make-web-jump (name prefix)
+;;  `(defcommand ,name (search) ((:rest ,(concatenate 'string name " search: ")))
+;;     (substitute #\+ #\Space search)
+;;     (run-shell-command (concatenate 'string ,prefix search))))
+;; ddg
+(set-prefix-key (kbd "s-quoteleft"))
+(defcommand ddg (search)
+  ((:string "ddg: "))
+  (run-shell-command (concatenate 'string "xdg-open https://duckduckgo.com?q=" (substitute #\+ #\Space search))))
+(define-key *root-map* (kbd "quoteleft") "ddg")
