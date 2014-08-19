@@ -29,6 +29,9 @@
       (org-reveal))
     (add-hook 'org-mode-hook 'my-org-mode-hook)))
 
+;; always enable word wrap
+(global-visual-line-mode)
+
 ;; scroll one line at a time
 (setq scroll-step 1)
 
