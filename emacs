@@ -142,8 +142,9 @@
     (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t))
   (when (string= "x" window-system)
     (set-default-font "Ubuntu Mono-12")
+    (load-theme 'cyberpunk t)
     ;(load-theme 'monokai t)
-    (load-theme 'railscasts t)
+    ;(load-theme 'railscasts t)
     ;(load-theme 'zenburn t)
     (require 'cask "~/.cask/cask.el")
     (cask-initialize)
@@ -227,7 +228,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("86adc18aa6fb3ea0a801831f7b0bc88ed5999386" default)))
+    ("f0a99f53cbf7b004ba0c1760aa14fd70f2eabafe4e62a2b3cf5cabae8203113b" "86adc18aa6fb3ea0a801831f7b0bc88ed5999386" default)))
  '(org-agenda-files nil t)
  '(safe-local-variable-values
    (quote
