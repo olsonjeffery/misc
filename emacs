@@ -2,12 +2,12 @@
 (add-to-list 'load-path "~/.emacs.d/vendor")
 (add-to-list 'load-path "~/.emacs.d/vendor/coffee-mode")
 (add-to-list 'load-path "~/.emacs.d/vendor/evil")
-(require 'coffee-mode)
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
+;;; Code:
 ;; EVIL vim for emacs stuff
 (require 'evil)
 (evil-mode 1)
@@ -145,7 +145,8 @@
   (when (string= "x" window-system)
     (set-default-font "Ubuntu Mono-12")
     ;(load-theme 'monokai t)
-    (load-theme 'railscasts t)
+    ;(load-theme 'railscasts t)
+    (load-theme 'cyberpunk t)
     ;(load-theme 'zenburn t)
     (require 'cask "~/.cask/cask.el")
     (cask-initialize)
@@ -228,13 +229,13 @@
 (global-set-key (kbd "C-M-n")  (lambda () (interactive)
                                  (next-flymake-error)))
 
-                                        ;###################################
-                                        ;###################################
-                                        ;##
-                                        ;## AUTO ADD BY TOOLING BELOW HERE
-                                        ;##
-                                        ;###################################
-                                        ;###################################
+;###################################
+;###################################
+;##
+;## AUTO ADD BY TOOLING BELOW HERE
+;##
+;###################################
+;###################################
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
