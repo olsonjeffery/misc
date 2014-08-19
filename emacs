@@ -1,3 +1,6 @@
+;;; dotfile --- jeff's .emacs
+;;; Commentary:
+;;; Code:
 (add-to-list 'load-path "~/.emacs.d/site-lisp")
 (add-to-list 'load-path "~/.emacs.d/vendor")
 (add-to-list 'load-path "~/.emacs.d/vendor/coffee-mode")
@@ -7,7 +10,6 @@
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
-;;; Code:
 ;; EVIL vim for emacs stuff
 (require 'evil)
 (evil-mode 1)
@@ -35,11 +37,7 @@
   (interactive)
   (other-window -1))
 
-;; we're hopefully running emacs-snapshot, so let's use
-;; the new system
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solarized")
-
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq c-indent-level 2)
@@ -145,8 +143,7 @@
   (when (string= "x" window-system)
     (set-default-font "Ubuntu Mono-12")
     ;(load-theme 'monokai t)
-    ;(load-theme 'railscasts t)
-    (load-theme 'cyberpunk t)
+    (load-theme 'railscasts t)
     ;(load-theme 'zenburn t)
     (require 'cask "~/.cask/cask.el")
     (cask-initialize)
@@ -161,8 +158,6 @@
     )
   (when (not (string= "w32" window-system))
     ))
-(global-set-key (kbd "<s-down>") 'other-window)
-(global-set-key (kbd "<s-up>") 'jeff-back-window)
 (per-platform-setup)
 
 ;; rust-mode
@@ -172,14 +167,6 @@
                                         ;(auto-complete-mode 1)
   )
 (add-hook 'rust-mode-hook 'my-rust-mode-hook)
-
-;; speedbar config
-;(require 'sr-speedbar)
-;(global-set-key (kbd "s-s") 'sr-speedbar-toggle)
-;(setq sr-speedbar-auto-refresh t)
-;(setq sr-speedbar-right-side nil)
-;; use semantic in speedbar	
-;(add-hook 'speedbar-load-hook (lambda () (require 'semantic-sb)))
 
 ;; some useful c++ dev stuff
 (defun my-c-mode-common-hook ()
@@ -207,10 +194,6 @@
 (define-key ctl-x-map "S" 'save-current-configuration)
 (define-key ctl-x-map "F" 'resume)
 (define-key ctl-x-map "K" 'wipe)
-
-;; jshint support
-;;(require 'flymake-node-jshint)
-;;(add-hook 'js-mode-hook (lambda () (flymake-mode 1)))
 
 ;; flymake errors in console/tty emacs
 (defun next-flymake-error ()
