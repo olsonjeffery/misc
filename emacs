@@ -10,6 +10,9 @@
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
+;; pull in sr-speedbar
+(require 'sr-speedbar)
+
 ;; EVIL vim for emacs stuff
 (require 'evil)
 (evil-mode 1)
@@ -39,6 +42,9 @@
 (defun jeff-back-window ()
   (interactive)
   (other-window -1))
+
+;; projectile init
+(projectile-global-mode)
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 (setq-default tab-width 2)
@@ -154,11 +160,13 @@
     (add-hook 'after-init-hook #'global-flycheck-mode)
     )
   (when (string= "ns" window-system)
-    (set-default-font "Monaco-12")
+    (set-default-font "Inconsolata-14")
     (load-theme 'railscasts t)
+    ;(load-theme 'leuven t)
     ;(require 'cask "~/.cask/cask.el")
     ;(cask-initialize)
     (add-hook 'after-init-hook #'global-flycheck-mode)
+    (set-cursor-color "red")
     )
   (when (not (string= "w32" window-system))
     ))
@@ -229,21 +237,48 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default bold shadow italic underline bold bold-italic bold])
+ '(ansi-color-names-vector
+   (vector "#839496" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#002b36"))
  '(custom-safe-themes
    (quote
-    ("f0a99f53cbf7b004ba0c1760aa14fd70f2eabafe4e62a2b3cf5cabae8203113b" "86adc18aa6fb3ea0a801831f7b0bc88ed5999386" default)))
- '(org-agenda-files nil t)
+    ("9e7e1bd71ca102fcfc2646520bb2f25203544e7cc464a30c1cbd1385c65898f4" "4cf3221feff536e2b3385209e9b9dc4c2e0818a69a1cdb4b522756bcdf4e00a4" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" "f0a99f53cbf7b004ba0c1760aa14fd70f2eabafe4e62a2b3cf5cabae8203113b" "86adc18aa6fb3ea0a801831f7b0bc88ed5999386" default)))
+ '(fci-rule-color "#073642")
+ '(org-agenda-files nil)
  '(safe-local-variable-values
    (quote
     ((eval when
            (fboundp
             (quote rainbow-mode))
            (rainbow-mode 1))
-     (buffer-file-coding-system . utf-8-unix)))))
+     (buffer-file-coding-system . utf-8-unix))))
+ '(vc-annotate-background nil)
+ '(vc-annotate-color-map
+   (quote
+    ((20 . "#dc322f")
+     (40 . "#cb4b16")
+     (60 . "#b58900")
+     (80 . "#859900")
+     (100 . "#2aa198")
+     (120 . "#268bd2")
+     (140 . "#d33682")
+     (160 . "#6c71c4")
+     (180 . "#dc322f")
+     (200 . "#cb4b16")
+     (220 . "#b58900")
+     (240 . "#859900")
+     (260 . "#2aa198")
+     (280 . "#268bd2")
+     (300 . "#d33682")
+     (320 . "#6c71c4")
+     (340 . "#dc322f")
+     (360 . "#cb4b16"))))
+ '(vc-annotate-very-old-color nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(cursor ((t (:background "#EEEEEE" :foreground "#5A647E")))))
+ '(cursor ((t (:background "dark cyan" :foreground "gray100")))))
 (put 'scroll-left 'disabled nil)
