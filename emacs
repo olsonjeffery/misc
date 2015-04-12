@@ -10,9 +10,6 @@
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
-;; pull in sr-speedbar
-(require 'sr-speedbar)
-
 ;; EVIL vim for emacs stuff
 (require 'evil)
 (evil-mode 1)
