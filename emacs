@@ -44,6 +44,7 @@
   (other-window -1))
 
 ;; helm
+(require 'helm-config)
 (helm-mode)
 ;; helm key rebinds
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
