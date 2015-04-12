@@ -8,3 +8,6 @@
 /emacs.d/session*
 /emacs.d/url
 /emacs.d/var
+/emacs.d/.emacs.desktop
+/emacs.d/.emacs.desktop.lock
+/emacs.d/projectile*
