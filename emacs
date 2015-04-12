@@ -43,6 +43,12 @@
   (interactive)
   (other-window -1))
 
+;; helm
+(helm-mode)
+;; helm key rebinds
+(global-set-key (kbd "C-x C-f") 'helm-buffers-list)
+(global-set-key (kbd "M-x") 'helm-M-x)
+
 ;; projectile init
 (projectile-global-mode)
 
@@ -107,6 +113,8 @@
 (add-to-list 'auto-mode-alist '("\\.cpp\\'" . auto-complete-mode))
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . auto-complete-mode))
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+(setq auto-mode-alist
+      (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
 (setq ac-show-menu t)
 
 ;; buffer-move
@@ -140,12 +148,9 @@
 (defun per-platform-setup ()
   (when (string= "w32" window-system)
     (require 'flymake)
-    (add-to-list 'load-path "~/.emacs.d/vendor/csharpmode")
     (require 'powershell)
-    (require 'csharp-mode)
+    ;(require 'csharp-mode)
     (load-theme 'railscasts t)
-    (setq auto-mode-alist
-          (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
     (defun my-csharp-mode-fn ()
       ;; should put something here..
       )
@@ -224,6 +229,57 @@
             (message err)))))))
 (global-set-key (kbd "C-M-n")  (lambda () (interactive)
                                  (next-flymake-error)))
+
+;; omnisharp setup
+(add-hook 'csharp-mode-hook 'omnisharp-mode)
+
+;; this is a function that runs the build command, based on the platform
+(defun csharp-build-command ()
+  (when (string= "w32" window-system)
+  (when (not (string= "w32" window-system))
+    (omnisharp-build-in-emacs)
+    )))
+;; evil/omnisharp setup
+(evil-define-key 'insert omnisharp-mode-map (kbd "M-.") 'omnisharp-auto-complete)
+(evil-define-key 'normal omnisharp-mode-map (kbd "<f12>") 'omnisharp-go-to-definition)
+(evil-define-key 'normal omnisharp-mode-map (kbd "g u") 'omnisharp-find-usages)
+(evil-define-key 'normal omnisharp-mode-map (kbd "g I") 'omnisharp-find-implementations) ; g i is taken
+(evil-define-key 'normal omnisharp-mode-map (kbd "g o") 'omnisharp-go-to-definition)
+(evil-define-key 'normal omnisharp-mode-map (kbd "g r") 'omnisharp-run-code-action-refactoring)
+(evil-define-key 'normal omnisharp-mode-map (kbd "g f") 'omnisharp-fix-code-issue-at-point)
+(evil-define-key 'normal omnisharp-mode-map (kbd "g F") 'omnisharp-fix-usings)
+(evil-define-key 'normal omnisharp-mode-map (kbd "g R") 'omnisharp-rename)
+(evil-define-key 'normal omnisharp-mode-map (kbd ", i") 'omnisharp-current-type-information)
+(evil-define-key 'normal omnisharp-mode-map (kbd ", I") 'omnisharp-current-type-documentation)
+(evil-define-key 'insert omnisharp-mode-map (kbd ".") 'omnisharp-add-dot-and-auto-complete)
+(evil-define-key 'normal omnisharp-mode-map (kbd ", n t") 'omnisharp-navigate-to-current-file-member)
+(evil-define-key 'normal omnisharp-mode-map (kbd ", n s") 'omnisharp-navigate-to-solution-member)
+(evil-define-key 'normal omnisharp-mode-map (kbd ", n f") 'omnisharp-navigate-to-solution-file-then-file-member)
+(evil-define-key 'normal omnisharp-mode-map (kbd ", n F") 'omnisharp-navigate-to-solution-file)
+(evil-define-key 'normal omnisharp-mode-map (kbd ", n r") 'omnisharp-navigate-to-region)
+(evil-define-key 'normal omnisharp-mode-map (kbd "<f12>") 'omnisharp-show-last-auto-complete-result)
+(evil-define-key 'insert omnisharp-mode-map (kbd "<f12>") 'omnisharp-show-last-auto-complete-result)
+(evil-define-key 'normal omnisharp-mode-map (kbd ",.") 'omnisharp-show-overloads-at-point)
+(evil-define-key 'normal omnisharp-mode-map (kbd ",rl") 'omnisharp-build-in-emacs)
+(evil-define-key 'normal omnisharp-mode-map (kbd ",f") 'helm-projectile)
+
+(evil-define-key 'normal omnisharp-mode-map (kbd ",rt")
+  (lambda() (interactive) (omnisharp-unit-test "single")))
+
+(evil-define-key 'normal omnisharp-mode-map
+  (kbd ",rf")
+  (lambda() (interactive) (omnisharp-unit-test "fixture")))
+
+(evil-define-key 'normal omnisharp-mode-map
+  (kbd ",ra")
+  (lambda() (interactive) (omnisharp-unit-test "all")))
+
+;; Speed up auto-complete on mono drastically. This comes with the
+;; downside that documentation is impossible to fetch.
+(setq omnisharp-auto-complete-want-documentation nil)
+
+;; Other misc. keybinds
+(global-set-key (kbd "C--") 'pop-tag-mark)
 
 ;###################################
 ;###################################
