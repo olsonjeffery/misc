@@ -52,11 +52,18 @@
 (projectile-global-mode)
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-(setq-default tab-width 2)
-(setq-default indent-tabs-mode nil)
-(setq c-indent-level 2)
+(defun my-generate-tab-stops (&optional width max)
+  "Return a sequence suitable for `tab-stop-list'."
+  (let* ((max-column (or max 200))
+         (tab-width (or width tab-width))
+         (count (/ max-column tab-width)))
+    (number-sequence tab-width (* tab-width count) tab-width)))
+(setq tab-width 4)
+(setq tab-stop-list (my-generate-tab-stops))
+(setq c-indent-level 4)
 (setq c-default-style "linux"
-      c-basic-offset 2)
+      c-basic-offset 4)
+(setq-default indent-tabs-mode nil)
 (global-linum-mode 1)
 (setq linum-format "%d ")
 (defun coffee-custom ()
@@ -189,7 +196,7 @@
 (defun my-c-mode-common-hook ()
   (define-key c-mode-base-map (kbd "M-o") 'eassist-switch-h-cpp)
   (define-key c-mode-base-map (kbd "M-m") 'eassist-list-methods)
-  (define-key c-mode-base-map (kbd "<C-tab>") 'ac-complete-semantic)
+  ;;(define-key c-mode-base-map (kbd "<C-tab>") 'ac-complete-semantic)
   (define-key c-mode-base-map (kbd "C-.") 'semantic-ia-fast-jump))
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 
@@ -281,6 +288,11 @@
 
 ;; Other misc. keybinds
 (global-set-key (kbd "C--") 'pop-tag-mark)
+
+;; replace emacs window next stuff w/ whats in evil
+(global-set-key (kbd "C-x o") 'evil-window-next)
+(global-set-key (kbd "C-x n") 'evil-window-next)
+(global-set-key (kbd "C-x p") 'evil-window-prev)
 
 ;###################################
 ;###################################
