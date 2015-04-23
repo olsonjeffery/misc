@@ -269,6 +269,9 @@
 (evil-define-key 'insert omnisharp-mode-map (kbd "<f12>") 'omnisharp-show-last-auto-complete-result)
 (evil-define-key 'normal omnisharp-mode-map (kbd ",.") 'omnisharp-show-overloads-at-point)
 (evil-define-key 'normal omnisharp-mode-map (kbd ",rl") 'omnisharp-build-in-emacs)
+(evil-define-key 'normal omnisharp-mode-map (kbd ",ta") 'omnisharp-unit-test-all)
+(evil-define-key 'normal omnisharp-mode-map (kbd ",tf") 'omnisharp-unit-test-fixture)
+(evil-define-key 'normal omnisharp-mode-map (kbd ",ts") 'omnisharp-unit-test-single)
 (evil-define-key 'normal omnisharp-mode-map (kbd ",f") 'helm-projectile)
 
 (evil-define-key 'normal omnisharp-mode-map (kbd ",rt")
@@ -285,6 +288,9 @@
 ;; Speed up auto-complete on mono drastically. This comes with the
 ;; downside that documentation is impossible to fetch.
 (setq omnisharp-auto-complete-want-documentation nil)
+
+;; jj to exit insert mode in evil
+(define-key evil-insert-state-map (kbd "C-j C-j") 'evil-normal-state)
 
 ;; Other misc. keybinds
 (global-set-key (kbd "C--") 'pop-tag-mark)
