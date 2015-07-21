@@ -6,8 +6,9 @@
 (add-to-list 'load-path "~/.emacs.d/vendor/coffee-mode")
 (add-to-list 'load-path "~/.emacs.d/vendor/evil")
 (require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("marmalade" . "https://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.org/packages/")))
 (package-initialize)
 
 ;; EVIL vim for emacs stuff
@@ -117,11 +118,18 @@
 (setq ac-auto-show-menu 1)
 (add-to-list 'ac-modes 'coffee-mode 'rust-mode)
 (add-to-list 'auto-mode-alist '("\\.cpp\\'" . auto-complete-mode))
-(add-to-list 'auto-mode-alist '("\\.rs\\'" . auto-complete-mode))
+;(add-to-list 'auto-mode-alist '("\\.rs\\'" . auto-complete-mode))
+(autoload 'rust-mode "rust-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 (setq auto-mode-alist
       (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
 (setq ac-show-menu t)
+
+;; racer
+;(setq racer-rust-src-path "/Users/jeff/src/rust/src/")
+;(setq racer-cmd "/Users/jeff/src/racer/target/release/racer")
+;(add-to-list 'load-path "/Users/jeff/src/racer/editors")
+;(eval-after-load "rust-mode" '(require 'racer))
 
 ;; buffer-move
 (require 'buffer-move)
@@ -293,12 +301,16 @@
 (define-key evil-insert-state-map (kbd "C-j C-j") 'evil-normal-state)
 
 ;; Other misc. keybinds
+(define-key evil-normal-state-map (kbd ",f") 'helm-projectile)
 (global-set-key (kbd "C--") 'pop-tag-mark)
 
 ;; replace emacs window next stuff w/ whats in evil
 (global-set-key (kbd "C-x o") 'evil-window-next)
 (global-set-key (kbd "C-x n") 'evil-window-next)
 (global-set-key (kbd "C-x p") 'evil-window-prev)
+
+;; auto-revert
+(global-auto-revert-mode t)
 
 ;###################################
 ;###################################
@@ -356,5 +368,15 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(cursor ((t (:background "dark cyan" :foreground "gray100")))))
+ '(cursor ((t (:background "dark cyan" :foreground "gray100"))))
+ '(rainbow-delimiters-depth-1-face ((t (:foreground "red1"))))
+ '(rainbow-delimiters-depth-2-face ((t (:foreground "orange1"))))
+ '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow1"))))
+ '(rainbow-delimiters-depth-4-face ((t (:foreground "green1"))))
+ '(rainbow-delimiters-depth-5-face ((t (:foreground "blue1"))))
+ '(rainbow-delimiters-depth-6-face ((t (:foreground "magenta1"))))
+ '(rainbow-delimiters-depth-7-face ((t (:foreground "purple1"))))
+ '(rainbow-delimiters-depth-8-face ((t (:foreground "red1"))))
+ '(rainbow-delimiters-depth-9-face ((t (:foreground "orange1"))))
+ '(rainbow-delimiters-unmatched-face ((t (:foreground "IndianRed3")))))
 (put 'scroll-left 'disabled nil)
