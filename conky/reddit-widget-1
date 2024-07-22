@@ -1,0 +1,130 @@
+
+conky.config = {
+
+  alignment = 'bottom_right',
+  background = false,   -- set to yes if you want Conky to be forked in the background
+  border_width = 1,
+
+  use_xft = true,
+  font = 'Arial:size=10',
+  uppercase = false,
+  use_spacer = 'none',
+
+  own_window = true,
+  own_window_class = 'Conky',
+  own_window_type = 'normal',
+  own_window_transparent = false,
+  own_window_argb_visual = true,
+  own_window_argb_value = 40,
+  own_window_hints = 'undecorated,above,sticky,skip_taskbar,skip_pager',
+  --own_window_hints = 'above'
+
+  cpu_avg_samples = 2,
+  net_avg_samples = 2,
+
+  default_color = 'white',
+  border_width = 1,
+  default_outline_color = 'white',
+  default_shade_color = '000000',
+
+  double_buffer = true,
+  --no_buffers = true,
+
+  draw_borders = false,
+  draw_graph_borders = true,
+  draw_outline = false,
+  draw_shades = false,
+  extra_newline = false,
+
+
+  gap_x = 0,
+  gap_y = 0,
+
+  minimum_height = 1000,
+  maximum_height = 1000,
+  minimum_width = 270,
+  maximum_width = 270,
+
+
+  out_to_console = false,
+  out_to_ncurses = false,
+  out_to_stderr = false,
+ 
+--  short_units = false,
+  temperature_unit = 'celsius',
+  update_interval = 1.0,
+
+  -- --- change colors as needed ---
+  color1 = 'skyblue4',      -- text/data
+  color2 = 'dodgerblue3',   -- labels
+  color3 = 'deepskyblue2',  -- highlights
+  color4 = 'gray10',        -- bar charts
+  color5 = 'gray17',        -- graph borders
+  color6 = 'yellow1',       -- warning (hi cpu temp)
+  color7 = 'green3',        -- stock ticker "up"
+  color8 = 'red3',          -- stock ticker "down"
+  -- -------------------------------
+
+
+}
+
+conky.text = [[
+# -- Time & Date -- #
+${goto 5}${font}${color 00758D}${hr 2}${color}
+${alignc}${font Arial Black:size=12}${time %H:%M:%S}
+${alignc}${voffset -5}${font Helvetica LT Std :size=11}${time %A, %B %d, %Y}
+# -- System -- #
+${goto 5}${color2}${font ConkyColorsLogos:size=24}d${font DroidSans:bold:size=10}${voffset -2}${color} SYSTEM
+${goto 5}${color 00758D}${hr 2}${font}
+${goto 5}${voffset 2}${color}Files:${alignr}${color7}${fs_type}
+${goto 5}${voffset 2}${color}Conky:${alignr}${color7}${conky_version}
+${goto 5}${voffset 2}${color}System:${alignr}${color7}$machine
+${goto 5}${voffset 2}${color}Host:${alignr}${color7}$nodename
+${goto 5}${voffset 2}${color}Update:${alignr}${color7}${execpi 3600 aptitude search "~U" | wc -l | tail} package(s)
+${goto 5}${voffset 2}${color}Kernel:${alignr}${color7}${sysname} ${kernel}
+${goto 5}${voffset 2}${color}Battery:${alignr}${color7}${execi 2 upower -i $(upower -e | grep BAT) | grep --color=never -E "state|to\ full|to\ empty|percentage" | grep "time to empty:" | sed -E 's/^\s*time to empty:\s*(.*)$/\1/'} (${execi 2 upower -i $(upower -e | grep BAT) | grep --color=never -E "state|to\ full|to\ empty|percentage" | grep "percentage:" | sed -E 's/^\s*percentage:\s*(.*)$/\1/' })
+# -- CPU -- #
+${goto 5}${color 00758D}${hr 2}${font}
+${alignc}${voffset 5}${color7}${execi 65000 cat /proc/cpuinfo | grep 'model name' | sed -e 's/model name.*: //' | sed -e 's/Processor//'  | sed -e 's/(tm)/™/' | sed -e 's/(R)//' | sed -e 's/CPU//' | sed -e 's/@/:/' | sed -e 's/\ \ //' | sed -e 's/[0-9].[0-9][0-9]GHz//' | uniq} ${color}@ ${color FF5F1F}${freq_g}Ghz
+${goto 5}${color3}${font ConkySymbols:size=24}F${font DroidSans:bold:size=10}  ${voffset -10}${color}CPU${font}  ${voffset -8}${cpugraph cpu0 18,150 008000 FF0000 -tl}  ${voffset -10}${color FF5F1F}${cpu cpu0}%
+${goto 5}${color 00758D}${hr 2}
+${goto 5}${voffset 10}${color}Cpu1: ${color1}${cpubar cpu1 10,85}${goto 145}${color}Cpu2: ${color1}${cpubar cpu2 10,85}
+${goto 5}${voffset 5}${color}Cpu3: ${color1}${cpubar cpu3 10,85}${goto 145}${color}Cpu4: ${color1}${cpubar cpu4 10,85}
+${goto 5}${voffset 5}${color}Cpu5: ${color1}${cpubar cpu5 10,85}${goto 145}${color}Cpu6: ${color1}${cpubar cpu6 10,85}
+${goto 5}${voffset 5}${color}Cpu7: ${color1}${cpubar cpu7 10,85}${goto 145}${color}Cpu8: ${color1}${cpubar cpu8 10,85}
+# TEMPS & FAN
+${goto 5}${color 00758D}${hr 2}
+${goto 5}${voffset 5}${color8}${font ConkyColors:size=24}8${font DroidSans:bold:size=10}${voffset -5}${color}TEMPS & FAN
+${goto 5}${color 00758D}${hr 2}
+${goto 5}${voffset 5}${color7}CPU: ${color FF7F00}${execi 2 sensors thinkpad-isa-0000 | grep "^CPU:" | sed -E 's/^CPU:\s+\+([0-9.]+)°.*$/\1/' }°C ${goto 150}${color7}NVME: ${color FF7F00}${execi 2 sensors nvme-pci-0300| awk '/Composite/{ printf "%2.f\n" , $2 ; exit}'}°C
+${goto 5}${voffset 5}${color7}FAN: ${color FF7F00}${execi 2 sensors thinkpad-isa-0000 | grep "^fan1:" | sed -E 's/^fan1:\s+([0-9]+) RPM.*$/\1/' } RPM
+# -- Memory -- #
+${goto 5}${color 00758D}${hr 2}
+${goto 5}${voffset 5}${color orange}${font ConkySymbols:size=24}j${font DroidSans:bold:size=10}${color} MEMORY & STORAGE
+${goto 5}${color 00758D}${hr 2}
+${goto 5}${color7}RAM:${color orange}${execi 1 neofetch --stdout | grep "Memory:" | awk '{print $2" "$3" "$4'}}${color white} ${memperc}%${alignr}${color1}${membar 10,75}
+${goto 5}${color7}SWAP (USED):${color FF7F00}${swap}
+${goto 5}${color7}SWAP (TOTAL):${color FF7F00}${swapmax}${color white}  ${swapperc}%${alignr}${color1}${swapbar 10,75}
+# -- Storage -- #
+${goto 5}${color 00758D}${hr 2}
+${goto 50}${color}Used${goto 130}Size${goto 205}Used (%)
+${goto 5}${color}${voffset 2}NVME: ${color FF7F00}${fs_used /}${goto 135}${color 00FFFF}${fs_size /}${goto 210}${color 00FF00}${fs_used_perc /}%
+${goto 5}${color}${voffset 2}Read: ${color6}${diskio_read /dev/nvme0n1}/s${goto 135}${color}Write:${color6}${diskio_write /dev/nvme0n1}/s
+# -- PROCESSES -- #
+${goto 5}${color 00758D}${hr 2}
+${goto 5}${voffset 10}${color pink}${font ConkySymbols:size=20}N${font DroidSans:bold:size=12}${voffset -1}${color} TOP PROCESSES${font}
+${goto 5}${color 00758D}${hr 2}${color}
+${goto 5}${color 00FF00}${font Arial Black:size=10}Name ${goto 120}${color FF7F00}PID${goto 175}${color 00FFFF}CPU${goto 226}${color 00FF00}MEM
+${goto 5}${color 00758D}${voffset -10}${hr 2}${font}
+${goto 5}${color 00FF00}${top name 1}${goto 110}${color FF7F00}${top pid 1}${goto 165}${color 00FFFF}${top cpu 1}%${goto 220}${color 00FF00}${top mem 1}%
+${goto 5}${color 00FF00}${top name 2}${goto 110}${color FF7F00}${top pid 2}${goto 165}${color 00FFFF}${top cpu 2}%${goto 220}${color 00FF00}${top mem 2}%
+${goto 5}${color 00FF00}${top name 3}${goto 110}${color FF7F00}${top pid 3}${goto 165}${color 00FFFF}${top cpu 3}%${goto 220}${color 00FF00}${top mem 3}%
+${goto 5}${color 00FF00}${top name 4}${goto 110}${color FF7F00}${top pid 4}${goto 165}${color 00FFFF}${top cpu 4}%${goto 220}${color 00FF00}${top mem 4}%
+# -- Network -- #
+${goto 5}${color #00758D}${hr 2}
+${goto 5}${voffset 10}${color2}${font ConkySymbols:size=16}b${font DroidSans:bold:size=12}  ${color}NETWORK :${font}  ${color FFFF00}${addr wlp0s20f3}
+${goto 5}${color #00758D}${hr 2}
+${goto 5}${font PizzaDude Bullets:size=12}${color8}O${font Monospace:size=10} ${color 00FFFF}Up:${color FFFF00}${upspeed wlp0s20f3}\
+${goto 140}${color7}${font PizzaDude Bullets:size=12}I${font Monospace:size=10} ${color 00FFFF}Down:${color6}${downspeed wlp0s20f3}
+${goto 5}${color 00FFFF}${upspeedgraph wlp0s20f3 20,110 008000 FF0000 -t}${goto 140}${downspeedgraph wlp0s20f3 20,110 008000 FF0000 -t}
+]]
