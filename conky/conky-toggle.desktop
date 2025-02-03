@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=conky-toggle
+Comment=show/hide "reddit-widget-1" conky sidebar on right side
+Exec=conky-toggle
+Icon=conky-logomark-violet
+Terminal=false
+Type=Application
+StartupNotify=false
