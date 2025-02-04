@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=StumpWM
-Comment=Starts up gnome-session + StumpWM
-Exec=/home/jeff/src/misc/start-stumpwm
-TryExec=/home/jeff/src/misc/start-stumpwm
-Icon=
-Type=Application
-X-LightDM-DesktopName=GNOME
-X-Ubuntu-Gettext-Domain=gnome-session-3.0
