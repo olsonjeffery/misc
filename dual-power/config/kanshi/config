@@ -1,0 +1,21 @@
+output "LG Electronics LG ULTRAGEAR 112NTBKD6701" {
+	mode 3840x2160@120
+	position 0,0
+	scale 2
+	alias $HOME_0
+}
+
+output "AU Optronics 0x2336 Unknown" {
+	mode 2560x1440@60
+	scale 2
+	alias $INTERNAL
+}
+
+profile home_dock {
+	output $INTERNAL disable
+	output $HOME_0 enable
+}
+
+profile undocked {
+	output $INTERNAL enable
+}
