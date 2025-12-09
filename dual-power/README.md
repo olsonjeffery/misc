@@ -18,7 +18,7 @@ Start with installing vanilla Arch Linux or EndevourOS (with no desktop).
 
 ```bash
 # Base system install up through desktop
-sudo pacman -Syu base-devel git gum niri xwayland-satellite xdg-desktop-portal-gnome xdg-desktop-portal-gtk alacritty
+sudo pacman -Syu base-devel git gum niri xdg-desktop-portal-gnome xdg-desktop-portal-gtk alacritty networkmanager ghostty
 
 sudo pacman -S --needed base-devel
 git clone https://aur.archlinux.org/paru.git
@@ -26,7 +26,7 @@ cd paru
 makepkg -si
 cd .. && rm -Rf paru
 
-paru -S matugen-git wl-clipboard cliphist cava qt6-multimedia-ffmpeg
+paru -S matugen-git wl-clipboard cliphist cava qt6-multimedia-ffmpegx wayland-satellite-git
 paru -S wlsunset python3 evolution-data-server
 
 paru -S quickshell gpu-screen-recorder brightnessctl ddcutil noctalia-shell
@@ -36,12 +36,18 @@ paru -S polkit-kde-agent
 mkdir -p ~/.config/quickshell/noctalia-shell
 curl -sL https://github.com/noctalia-dev/noctalia-shell/releases/latest/download/noctalia-latest.tar.gz | tar -xz --strip-components=1 -C ~/.config/quickshell/noctalia-shell
 
-systemctl --user add-wants niri.service noctalia.service
+sudo mkdir -p /etc/sddm.conf.d && sudo cp ./etc/sddm.conf.d/autologin.conf /etc/sddm.conf.d/autologin.conf
 
-# Kanshi NOTE: you will need to add a ~/.config/kanshi/config file with your profile(s) in order
-# for kanshi to function
-mkdir -p ~/.config/systemd/user && cp ./config/systemd/user/kanshi.service ~/.config/systemd/user/kanshi.service
-systemctl --user enable kanshi.service
+# Noctalia enable
+mkdir -p ~/.config/systemd/user && cp ./config/systemd/user/noctalia.service ~/.config/systemd/user/noctalia.service
+systemctl --user enable noctalia.service
+
+# enable networkmanager before the first boot into niri
+sudo systemctl enable --now NetworkManager.service
+
+# Kanshi will be configured to launch through niri
+
+sudo reboot
 ```
 
 ### User Software
