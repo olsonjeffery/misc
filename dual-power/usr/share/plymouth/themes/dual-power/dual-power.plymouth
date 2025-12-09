@@ -1,0 +1,11 @@
+[Plymouth Theme]
+Name=Dual Power
+Description=Dual Power splash screen.
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/dual-power
+ScriptFile=/usr/share/plymouth/themes/dual-power/dual-power.script
+ConsoleLogBackgroundColor=0x1a1b26
+MonospaceFont=Cantarell 11
+Font=Cantarell 11

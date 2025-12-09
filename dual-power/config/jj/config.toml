@@ -1,0 +1,25 @@
+#:schema https://jj-vcs.github.io/jj/latest/config-schema.json
+
+[user]
+name = "Jeffery Olson"
+email = "olson.jeffery@gmail.com"
+
+[ui]
+#paginate = "never"
+editor = "nvim"
+default-command = "log-recent"
+
+[revset-aliases]
+'closest_bookmark(to)' = 'heads(::to & bookmarks())'
+# the default log revset defined internally:
+# 'default()' = 'present(@) | ancestors(immutable_heads().., 2) | present(trunk())'
+# or a nicer default:
+'default()' = 'coalesce(trunk(),root())::present(@) | ancestors(visible_heads() & recent(), 2)'
+'recent()' = 'committer_date(after:"1 month ago")'
+
+[aliases]
+log-recent = ["log", "-r", "default() & recent()"]
+l = ["log", "--limit=5", "--no-pager", "-r .."]
+lp = ["log", "--limit=10", "-r .."]
+tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@-"]
+
