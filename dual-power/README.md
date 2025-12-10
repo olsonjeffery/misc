@@ -18,16 +18,15 @@ Start with installing vanilla Arch Linux or EndevourOS (with no desktop).
 
 ```bash
 # Base system install up through desktop
-sudo pacman -Syu base-devel git gum niri xdg-desktop-portal-gnome xdg-desktop-portal-gtk alacritty networkmanager ghostty
+sudo pacman -Syu --needed base-devel git gum niri xdg-desktop-portal-gnome xdg-desktop-portal-gtk alacritty networkmanager ghostty
 
-sudo pacman -S --needed base-devel
 git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si
 cd .. && rm -Rf paru
 
 paru -S matugen-git wl-clipboard cliphist cava qt6-multimedia-ffmpegx wayland-satellite-git
-paru -S wlsunset python3 evolution-data-server
+paru -S wlsunset python3 evolution-data-server pacsea-bin
 
 paru -S quickshell gpu-screen-recorder brightnessctl ddcutil noctalia-shell
 
@@ -42,14 +41,17 @@ sudo mkdir -p /etc/sddm.conf.d && sudo cp ./etc/sddm.conf.d/autologin.conf /etc/
 mkdir -p ~/.config/systemd/user && cp ./config/systemd/user/noctalia.service ~/.config/systemd/user/noctalia.service
 systemctl --user enable noctalia.service
 
-# Install plymouth/update
+# Boot/login flow: install plymouth/update
 sudo cp -Rf ./usr/share/plymouth/themes/dual-power /usr/share/plymouth/themes/dual-power
 sudo plymouth-set-default-theme dual-power
 
+chmod +x ./bin/limine-snapper.sh ./bin/default-keyring.sh ./bin/sddm.sh
+sudo ./bin/limine-snapper.sh
+sudo ./bin/default-keyring.sh
+sudo ./bin/sddm.sh
+
 # enable networkmanager before the first boot into niri
 sudo systemctl enable --now NetworkManager.service
-
-# Kanshi will be configured to launch through niri
 
 #  Install kernel
 sudo pacman -Syu linux-zen
@@ -58,6 +60,10 @@ chmod +x ./bin/limine-snapper.sh
 sudo ./bin/limine-snapper.sh
 
 sudo efibootmgr --create --disk "$(findmnt -n -o SOURCE /boot | sed 's/p\?[0-9]*$//')" --part "$(findmnt -n -o SOURCE /boot | grep -o 'p\?[0-9]*$' | sed 's/^p//')" --label "DualPower" --loader "\\EFI\\Linux\\dualpower_linux-zen.efi"
+
+# Install application desktop files
+mkdir -p ~/.local/share
+cp -Rf ./local/share/applications ~/.local/share
 
 sudo reboot
 ```

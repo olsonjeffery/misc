@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=pacsea
+Comment=TUI for Arch packages/AUR; software; install; update
+Exec=alacritty -e pacsea
+#Terminal=false
+Type=Application
+Categories=System;
