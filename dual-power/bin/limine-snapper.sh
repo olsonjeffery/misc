@@ -136,6 +136,7 @@ fi
 #       --part "$(findmnt -n -o SOURCE /boot | grep -o 'p\?[0-9]*$' | sed 's/^p//')" \
 #       --label "DualPower" \
 #       --loader "\\EFI\\Linux\\$uki_file"
+#     sudo efibootmgr --create --disk "$(findmnt -n -o SOURCE /efi | sed 's/p\?[0-9]*$//')" --part "$(findmnt -n -o SOURCE /efi | grep -o 'p\?[0-9]*$' | sed 's/^p//')" --label "DualPower" --loader "\\EFI\\Linux\\dualpower_linux-lqx.efi"
 #   fi
 # fi
 
