@@ -16,9 +16,20 @@ Current this is a manual install process, outlined below.
 
 Start with installing vanilla Arch Linux or EndevourOS (with no desktop).
 
+#### EndevourOS
+
+Follow [this guide](https://forum.endeavouros.com/t/guide-how-to-install-and-configure-endeavouros-for-bootable-btrfs-snapshots-using-limine-and-limine-snapper-sync/69742) for limine setup on a fresh EndevousOS install.
+Be sure to select `btfs` and drive encryption. Choose "No Desktop" install option.
+
+```bash
+sudo pacman -Syu limine snapper
+```
+
+#### Dual Power Install
+
 ```bash
 # Base system install up through desktop
-sudo pacman -Syu --needed base-devel git gum niri xdg-desktop-portal-gnome xdg-desktop-portal-gtk alacritty networkmanager ghostty
+sudo pacman -Syu --needed base-devel git gum niri xdg-desktop-portal-gnome xdg-desktop-portal-gtk alacritty networkmanager ghostty sddm
 
 git clone https://aur.archlinux.org/paru.git
 cd paru
