@@ -44,7 +44,8 @@ paru -S quickshell gpu-screen-recorder brightnessctl ddcutil noctalia-shell
 paru -S polkit-kde-agent
 
 mkdir -p ~/.config/quickshell/noctalia-shell
-curl -sL https://github.com/noctalia-dev/noctalia-shell/releases/latest/download/noctalia-latest.tar.gz | tar -xz --strip-components=1 -C ~/.config/quickshell/noctalia-shell
+#curl -sL https://github.com/noctalia-dev/noctalia-shell/releases/latest/download/noctalia-latest.tar.gz | tar -xz --strip-components=1 -C ~/.config/quickshell/noctalia-shell
+cp config/noctalia ~/.config
 
 sudo mkdir -p /etc/sddm.conf.d && sudo cp ./etc/sddm.conf.d/autologin.conf /etc/sddm.conf.d/autologin.conf
 
