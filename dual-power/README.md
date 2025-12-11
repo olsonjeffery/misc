@@ -36,7 +36,7 @@ cd paru
 makepkg -si
 cd .. && rm -Rf paru
 
-paru -S matugen-git wl-clipboard cliphist cava qt6-multimedia-ffmpegx wayland-satellite-git librewolf-bin
+paru -S matugen-git wl-clipboard cliphist cava qt6-multimedia-ffmpeg xwayland-satellite-git librewolf-bin
 paru -S wlsunset python3 evolution-data-server pacsea-bin
 
 paru -S quickshell gpu-screen-recorder brightnessctl ddcutil noctalia-shell
