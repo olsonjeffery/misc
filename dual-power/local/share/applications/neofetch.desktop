@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=neofetch
+Comment=TUI for system information
+Exec=alacritty -o 'font.size=7.5' -e bash -c 'neofetch && read -s -n 1 key'
+#Terminal=false
+Type=Application
+Categories=System;
